@@ -1,4 +1,4 @@
 # Projet
 Projet Robot
 
-qui traverse un labyrinthe
+Un robot qui traverse un labyrinthe de maniere autonome.
