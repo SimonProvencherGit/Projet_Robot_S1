@@ -126,7 +126,7 @@ void ActionSensGauche()
     avance();
     posX--;
 
-    tourneDroite();
+    tourneDroit();
     
     if(murDetecte())
     {

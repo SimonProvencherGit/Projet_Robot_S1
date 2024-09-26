@@ -7,7 +7,7 @@ Description: Breve description du script
 Date: Derniere date de modification
 */
 
-//////////////////////////   ROBOT A  ////////////////////////////////////////////
+//////////////////////////   ROBOT A DROITE  ////////////////////////////////////////////
 
 /*
 Inclure les librairies de functions que vous voulez utiliser
@@ -57,7 +57,7 @@ void arret(){
 
 void avance(){
   MOTOR_SetSpeed(RIGHT,0.5*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.52*vitesse);
   delay(1320);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
@@ -73,14 +73,14 @@ void tourneDroit(){
   delay(500);
   MOTOR_SetSpeed(RIGHT, -0.25*vitesse);
   MOTOR_SetSpeed(LEFT, 0.25*vitesse);
-  delay(720);
+  delay(730);
 };
 
 void tourneGauche(){
   delay(500);
   MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
   MOTOR_SetSpeed(LEFT, -0.25*vitesse);
-  delay(720);
+  delay(730);
 };
 
 bool detectSiflet(){
@@ -126,7 +126,7 @@ void ActionSensGauche()
     avance();
     posX--;
 
-    tourneDroite();
+    tourneDroit();
     
     if(murDetecte())
     {
