@@ -27,6 +27,10 @@ bool rouge = false;
 int etat = 0; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
 float vitesse = 0.40;
+bool depart = false;
+
+int posX = 1;
+int posY = 1;
 
 /*
 Vos propres fonctions sont creees ici
@@ -67,6 +71,49 @@ void tourneGauche(){
   MOTOR_SetSpeed(LEFT, 0.5*vitesse);
 };
 
+bool detectSiflet(){
+  return true;
+}
+
+bool murDetecte(){
+  vert = digitalRead(vertpin);
+  rouge = digitalRead(rougepin);
+
+   if (vert && rouge){ // aucun obstacle => avance
+      return false;
+    }
+    if (!vert && !rouge){  // obstacle devant => recule
+      return true;
+    }
+}
+void faitDemiTour()
+{
+  tourneDroit();
+  delay(10);
+  tourneDroit();
+}
+
+/*s'il va vers la droite, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
+void ActionSensDroit()
+{
+  bool progres = false;
+
+  while (progres == false)
+  {
+    avance();
+    posX++;
+    tourneGauche();
+    
+    if(murDetecte())
+      tourneDroit();
+    else
+    {
+      progres = true;
+      avance();
+      posY++;
+    }
+  }
+}
 /*
 Fonctions d'initialisation (setup)
  -> Se fait appeler au debut du programme
@@ -87,84 +134,50 @@ void setup(){
 Fonctions de boucle infini
  -> Se fait appeler perpetuellement suite au "setup"
 */
-void loop() {
-  etatPast = etat;
-  bumperArr = ROBUS_IsBumper(3);
-  if (bumperArr){
-    if (etat == 0){
-      beep(2);
-      etat = 1;
-    } 
-    else{
-      beep(1);
-      etat = 0;
-    }
-  }
-  
-  vert = digitalRead(vertpin);
-  if (vert == 0)
-  {
-    printf("vert détecté");
-  }
-  else
-  {
-    printf("Vert pas detecte");
-  }
+void loop() 
+{
 
-  if (rouge == 0)
-  {
-    printf("rouge détecté");
-  }
-  else
-  {
-    printf("rouge pas detecte");
-  }
+  if(detectSiflet())
+    depart = true;
   
-  rouge = digitalRead(rougepin);
-  
-  if (etat > 0){
-    if (vert && rouge){ // aucun obstacle => avance
-      etat = 1;
-    }
-    if (!vert && !rouge){  // obstacle devant => recule
-      etat = 2;
-    }
-    if (!vert && rouge){ // obstacle à gauche => tourne droit
-        etat = 3;
-      }
-    if (vert && !rouge){ // obstacle à droite => tourne gauche
-        etat = 4;
-    }
-  }
-
-  if (etatPast != etat){
-    arret();
-    delay(50);
-  }
-  else{
-    switch (etat)
+  if(depart)
+  {
+    while(posY < 10) //si on est pas a la fin du labyrinthe
     {
-    case 0:
-      arret();
-      break;
-    case 1:
-      avance();
-      break;
-    case 2:
-      recule();
-      break;
-    case 3:
-      tourneDroit();
-      break;
-    case 4:
-      tourneGauche();
-      break;            
-    default:
-      avance();
-      etat = 1;
-    break;
+      if(murDetecte())
+      {
+        if(posX != 0) //si on est pas sur l'extrémité gauche
+        {
+          tourneGauche();
+          
+          if(murDetecte()) //si mur devant et mur a gauche
+          {
+            faitDemiTour();
+            
+            ActionSensDroit();
+          }
+          else  //mur devant et pas de mur a gauche
+          {
+            avance();
+            posX--;
+            tourneDroit();
+          }
+        }
+        else  //si on est sur l'extrémité gauche
+        {
+          tourneDroit();
+          
+          ActionSensDroit();
+        }
+      }
+      else  //si on peut avancer
+      {
+        avance();
+        posY++;
+      }
     }
+    
+    faitDemiTour();
+    posY = 1;
   }
-  delay(200);
-
 }
