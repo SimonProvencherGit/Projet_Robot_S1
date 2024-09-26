@@ -1,6 +1,6 @@
 
 /*
-Projet: Le nom du script
+Projet: Le nom du script 
 Equipe: Votre numero d'equipe
 Auteurs: Les membres auteurs du script
 Description: Breve description du script
