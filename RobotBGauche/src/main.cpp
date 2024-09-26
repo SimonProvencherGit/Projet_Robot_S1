@@ -71,16 +71,22 @@ void recule(){
 
 void tourneDroit(){
   delay(500);
-  MOTOR_SetSpeed(RIGHT, -0.25*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.25*vitesse);
-  delay(720);
+  MOTOR_SetSpeed(RIGHT, -0.20*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.20*vitesse);
+  delay(975);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  //delay(100);
 };
 
 void tourneGauche(){
   delay(500);
-  MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
-  MOTOR_SetSpeed(LEFT, -0.25*vitesse);
-  delay(720);
+  MOTOR_SetSpeed(RIGHT, 0.20*vitesse);
+  MOTOR_SetSpeed(LEFT, -0.20*vitesse);
+  delay(995);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  //delay(100);
 };
 
 bool detectSiflet(){
@@ -108,11 +114,12 @@ bool murDetecte(){
 void faitDemiTour()
 {
   delay(100);
-  MOTOR_SetSpeed(RIGHT, 0.25);
-  MOTOR_SetSpeed(LEFT, -0.25);
-  delay(1550);
+  MOTOR_SetSpeed(RIGHT, 0.25 * vitesse);
+  MOTOR_SetSpeed(LEFT, -0.25 * vitesse);
+  delay(1640);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
+  delay(100);
 }
 
 /*s'il va vers la droite, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
@@ -127,6 +134,7 @@ void ActionSensDroit()
     posX++;
 
     tourneGauche();
+    delay(100);
     
     if(murDetecte())
     {
@@ -164,18 +172,6 @@ Fonctions de boucle infini
 */
 void loop() 
 {
-  //avance();
-  //tourneDroit();
-  //avance();
-  //tourneGauche();
-  //avance();
- // faitDemiTour();
- //ActionSensDroit();
-
- /* while (true)
-  {
-    delay(100);
-  }*/
 
   if(detectSiflet())
     depart = true;
@@ -198,9 +194,11 @@ void loop()
           }
           else  //mur devant et pas de mur a gauche
           {
+            delay(100);
             avance();
             posX--;
             tourneDroit();
+            delay(500);
           }
         }
         else  //si on est sur l'extrémité gauche
