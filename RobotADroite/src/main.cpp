@@ -7,7 +7,7 @@ Description: Breve description du script
 Date: Derniere date de modification
 */
 
-//////////////////////////   ROBOT B ////////////////////////////////////////////
+//////////////////////////   ROBOT A  ////////////////////////////////////////////
 
 /*
 Inclure les librairies de functions que vous voulez utiliser
@@ -115,8 +115,8 @@ void faitDemiTour()
   MOTOR_SetSpeed(LEFT, 0);
 }
 
-/*s'il va vers la droite, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
-void ActionSensDroit()
+/*s'il va vers la gauche, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
+void ActionSensGauche()
 {
   
   bool progres = false;
@@ -124,14 +124,14 @@ void ActionSensDroit()
   while (progres == false)
   {
     avance();
-    posX++;
+    posX--;
 
-    tourneGauche();
+    tourneDroite();
     
     if(murDetecte())
     {
       delay(200);
-      tourneDroit();
+      tourneGauche();
     }
     else
     {
@@ -186,28 +186,28 @@ void loop()
     {
       if(murDetecte())
       {
-        if(posX != 0) //si on est pas sur l'extrémité gauche
-        {
-          tourneGauche();
-          
-          if(murDetecte()) //si mur devant et mur a gauche
-          {
-            faitDemiTour();
-            
-            ActionSensDroit();
-          }
-          else  //mur devant et pas de mur a gauche
-          {
-            avance();
-            posX--;
-            tourneDroit();
-          }
-        }
-        else  //si on est sur l'extrémité gauche
+        if(posX != 2) //si on est pas sur l'extrémité droite 
         {
           tourneDroit();
           
-          ActionSensDroit();
+          if(murDetecte()) //si mur devant et mur droite
+          {
+            faitDemiTour();
+            
+            ActionSensGauche();
+          }
+          else  //mur devant et pas de mur droite
+          {
+            avance();
+            posX++;
+            tourneGauche();
+          }
+        }
+        else  //si on est sur l'extrémité droite
+        {
+          tourneGauche();
+          
+          ActionSensGauche();
         }
       }
       else  //si on peut avancer
