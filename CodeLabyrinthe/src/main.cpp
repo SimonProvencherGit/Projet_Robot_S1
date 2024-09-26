@@ -7,6 +7,8 @@ Description: Breve description du script
 Date: Derniere date de modification
 */
 
+//////////////////////////   ROBOT B ////////////////////////////////////////////
+
 /*
 Inclure les librairies de functions que vous voulez utiliser
 */
@@ -26,8 +28,10 @@ bool vert = false;
 bool rouge = false;
 int etat = 0; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.40;
+float vitesse = 1;
 bool depart = false;
+int sifletAmbient = 35;
+int siflet5Khz = 43;
 
 int posX = 1;
 int posY = 1;
@@ -52,8 +56,12 @@ void arret(){
 };
 
 void avance(){
-  MOTOR_SetSpeed(RIGHT,vitesse);
-  MOTOR_SetSpeed(LEFT, vitesse);
+  MOTOR_SetSpeed(RIGHT,0.5*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+  delay(1320);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+
 };
 
 void recule(){
@@ -62,17 +70,28 @@ void recule(){
 };
 
 void tourneDroit(){
-  MOTOR_SetSpeed(RIGHT, 0.5*vitesse);
-  MOTOR_SetSpeed(LEFT, -0.5*vitesse);
+  delay(500);
+  MOTOR_SetSpeed(RIGHT, -0.25*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.25*vitesse);
+  delay(720);
 };
 
 void tourneGauche(){
-  MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+  delay(500);
+  MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
+  MOTOR_SetSpeed(LEFT, -0.25*vitesse);
+  delay(720);
 };
 
 bool detectSiflet(){
-  return true;
+ int pin35 = digitalRead(sifletAmbient);
+ int pin43 = digitalRead(siflet5Khz);
+  if(pin35 && pin43){
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 bool murDetecte(){
@@ -88,24 +107,32 @@ bool murDetecte(){
 }
 void faitDemiTour()
 {
-  tourneDroit();
-  delay(10);
-  tourneDroit();
+  delay(100);
+  MOTOR_SetSpeed(RIGHT, 0.25);
+  MOTOR_SetSpeed(LEFT, -0.25);
+  delay(1550);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
 }
 
 /*s'il va vers la droite, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
 void ActionSensDroit()
 {
+  
   bool progres = false;
 
   while (progres == false)
   {
     avance();
     posX++;
+
     tourneGauche();
     
     if(murDetecte())
+    {
+      delay(200);
       tourneDroit();
+    }
     else
     {
       progres = true;
@@ -114,6 +141,7 @@ void ActionSensDroit()
     }
   }
 }
+
 /*
 Fonctions d'initialisation (setup)
  -> Se fait appeler au debut du programme
@@ -136,6 +164,18 @@ Fonctions de boucle infini
 */
 void loop() 
 {
+  //avance();
+  //tourneDroit();
+  //avance();
+  //tourneGauche();
+  //avance();
+ // faitDemiTour();
+ //ActionSensDroit();
+
+ /* while (true)
+  {
+    delay(100);
+  }*/
 
   if(detectSiflet())
     depart = true;
@@ -179,5 +219,6 @@ void loop()
     
     faitDemiTour();
     posY = 1;
+    posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
   }
 }
