@@ -32,6 +32,8 @@ float vitesse = 1;
 bool depart = false;
 int sifletAmbient = 35;
 int siflet5Khz = 43;
+char chemin[30];
+int nbAction = 0;
 
 int posX = 1;
 int posY = 1;
@@ -70,23 +72,23 @@ void recule(){
 };
 
 void tourneDroit(){
-  delay(500);
+  delay(400);
   MOTOR_SetSpeed(RIGHT, -0.20*vitesse);
   MOTOR_SetSpeed(LEFT, 0.20*vitesse);
   delay(975);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-  //delay(100);
+  delay(100);
 };
 
 void tourneGauche(){
-  delay(500);
+  delay(400);
   MOTOR_SetSpeed(RIGHT, 0.20*vitesse);
   MOTOR_SetSpeed(LEFT, -0.20*vitesse);
   delay(995);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-  //delay(100);
+  delay(100);
 };
 
 bool detectSiflet(){
@@ -132,13 +134,15 @@ void ActionSensDroit()
   {
     avance();
     posX++;
+    chemin[nbAction] = 'D';
+    nbAction++;
 
     tourneGauche();
     delay(100);
     
     if(murDetecte())
     {
-      delay(200);
+      delay(100);
       tourneDroit();
     }
     else
@@ -146,6 +150,8 @@ void ActionSensDroit()
       progres = true;
       avance();
       posY++;
+      chemin[nbAction] = 'A';
+      nbAction++;
     }
   }
 }
@@ -172,6 +178,7 @@ Fonctions de boucle infini
 */
 void loop() 
 {
+  depart = false;
 
   if(detectSiflet())
     depart = true;
@@ -197,8 +204,10 @@ void loop()
             delay(100);
             avance();
             posX--;
+            chemin[nbAction] = 'G';
+            nbAction++;
             tourneDroit();
-            delay(500);
+            delay(300);
           }
         }
         else  //si on est sur l'extrémité gauche
@@ -212,11 +221,79 @@ void loop()
       {
         avance();
         posY++;
+        chemin[nbAction] = 'A';
+        nbAction++;
       }
     }
     
     faitDemiTour();
     posY = 1;
-    posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
+    //posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
+
+    while(posY < 10) 
+    {
+      for(int i = nbAction; i >= 0; i--)
+      {
+        if(chemin[i] == 'A')
+        {
+          posY++; 
+
+          if(chemin[i+1] == 'G')
+          {
+            tourneDroit();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            tourneGauche();
+            //delay(100);
+            avance();
+          }
+          else
+          {
+            avance();
+          }
+        }
+        else if(chemin[i] == 'G')
+        {
+          if(chemin[i+1] == 'A')
+          {
+            tourneGauche();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'G')
+          {
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            faitDemiTour();
+            //delay(100);
+            avance();
+          }
+        }
+        else if(chemin[i] == 'D')
+        {
+          if(chemin[i+1] == 'A')
+          {
+            tourneDroit();
+            //delay(100);
+            avance(); 
+          }
+          else if(chemin[i+1] == 'G')
+          {
+            faitDemiTour();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            avance();
+          }
+        }
+      }
+    }
   }
 }
