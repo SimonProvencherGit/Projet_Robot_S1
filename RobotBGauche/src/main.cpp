@@ -58,9 +58,9 @@ void arret(){
 };
 
 void avance(){
-  MOTOR_SetSpeed(RIGHT,0.5*vitesse);
+  MOTOR_SetSpeed(RIGHT,0.5035*vitesse);
   MOTOR_SetSpeed(LEFT, 0.5*vitesse);
-  delay(1320);
+  delay(1335);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
 
@@ -72,20 +72,36 @@ void recule(){
 };
 
 void tourneDroit(){
-  delay(400);
-  MOTOR_SetSpeed(RIGHT, -0.20*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.20*vitesse);
-  delay(975);
+  //delay(200);
+  for(double i = 0; i <= 0.175; i += 0.015)
+  {
+    // Appliquer une accélération quadratique pour rendre la progression plus douce
+    double facteur = 0.2+(i * i); // Courbe quadratique pour une accélération plus douce
+    MOTOR_SetSpeed(RIGHT, (-0.1- facteur) * vitesse);
+    MOTOR_SetSpeed(LEFT, (0.1 +facteur) * vitesse);
+    delay(56);
+  }
+  /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.175*vitesse);
+  delay(1223);*/
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(100);
 };
 
 void tourneGauche(){
-  delay(400);
-  MOTOR_SetSpeed(RIGHT, 0.20*vitesse);
-  MOTOR_SetSpeed(LEFT, -0.20*vitesse);
-  delay(995);
+  for(double i = 0; i <= 0.175; i += 0.015)
+  {
+    // Appliquer une accélération quadratique pour rendre la progression plus douce
+    double facteur = 0.2+(i * i); // Courbe quadratique pour une accélération plus douce
+    MOTOR_SetSpeed(RIGHT, (0.1+ facteur) * vitesse);
+    MOTOR_SetSpeed(LEFT, (-0.1 -facteur) * vitesse);
+    delay(53);
+  }
+  //delay(200);
+  //MOTOR_SetSpeed(RIGHT, 0.175*vitesse);
+  //MOTOR_SetSpeed(LEFT, -0.175*vitesse);
+  //delay(1210);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(100);
@@ -116,9 +132,9 @@ bool murDetecte(){
 void faitDemiTour()
 {
   delay(100);
-  MOTOR_SetSpeed(RIGHT, 0.25 * vitesse);
-  MOTOR_SetSpeed(LEFT, -0.25 * vitesse);
-  delay(1640);
+  MOTOR_SetSpeed(RIGHT, 0.185 * vitesse);
+  MOTOR_SetSpeed(LEFT, -0.185 * vitesse);
+  delay(2350);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(100);
@@ -195,19 +211,20 @@ void loop()
           
           if(murDetecte()) //si mur devant et mur a gauche
           {
+            delay(100);
             faitDemiTour();
             
             ActionSensDroit();
           }
           else  //mur devant et pas de mur a gauche
           {
-            delay(100);
+            //delay(100);
             avance();
             posX--;
             chemin[nbAction] = 'G';
             nbAction++;
             tourneDroit();
-            delay(300);
+            //delay(300);
           }
         }
         else  //si on est sur l'extrémité gauche
