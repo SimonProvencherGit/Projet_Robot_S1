@@ -58,18 +58,18 @@ void avance(){
   if(chemin[nbAction-1] == 'A')
   {
     MOTOR_SetSpeed(RIGHT,0.6*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.622*vitesse);
-    delay(1155);
+    MOTOR_SetSpeed(LEFT, 0.6218*vitesse);
+    delay(1110);
   }
   else        //il faut calculer le temps pour avancer de 0.5m
   {
     for(double i=0.2;i<=0.6;i+=0.1)       
     {
       MOTOR_SetSpeed(RIGHT,i*vitesse);
-      MOTOR_SetSpeed(LEFT, (0.022+i)*vitesse);
+      MOTOR_SetSpeed(LEFT, (0.0218+i)*vitesse);
       delay(102);
     }
-    delay(850);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
+    delay(870);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
   }
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
@@ -92,9 +92,10 @@ void tourneDroit(){         //a rvoir la boucle for pour l'acceleration
   /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
   MOTOR_SetSpeed(LEFT, 0.175*vitesse);
   delay(1223);*/
+  //delay(10);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-  delay(160);
+  delay(150);
 };
 
 void tourneGauche(){
@@ -105,6 +106,7 @@ void tourneGauche(){
     MOTOR_SetSpeed(LEFT, (-0.1 -i) * vitesse);
     delay(163);
   }
+  delay(10);
   //delay(200);
   //MOTOR_SetSpeed(RIGHT, 0.175*vitesse);
   //MOTOR_SetSpeed(LEFT, -0.175*vitesse);
@@ -138,13 +140,24 @@ bool murDetecte(){
 }
 void faitDemiTour()
 {
-  delay(100);
+  delay(500);
+  for(double i = 0.2; i <= 0.4; i += 0.05)
+  {
+    MOTOR_SetSpeed(RIGHT, (i) * vitesse);
+    MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
+    delay(160);
+  }
+  delay(525);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  delay(150);
+  /*delay(100);
   MOTOR_SetSpeed(RIGHT, 0.185 * vitesse);
   MOTOR_SetSpeed(LEFT, -0.185 * vitesse);
   delay(2350);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-  delay(100);
+  delay(100);*/
 }
 
 /*s'il va vers la droite, il verifie toutes les 0.5m s'il peut avancer (y++)*/
