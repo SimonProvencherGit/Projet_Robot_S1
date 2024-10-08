@@ -54,40 +54,52 @@ void arret(){
 };
 
 void avance(){
-
-  if(chemin[nbAction-1] == 'A')
+/*
+ if(chemin[nbAction-1] == 'A')
   {
     MOTOR_SetSpeed(RIGHT,0.6*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.6218*vitesse);
-    delay(1110);
+    MOTOR_SetSpeed(LEFT, 0.6238*vitesse);
+    delay(1000);
   }
   else        //il faut calculer le temps pour avancer de 0.5m
   {
     for(double i=0.2;i<=0.6;i+=0.1)       
     {
       MOTOR_SetSpeed(RIGHT,i*vitesse);
-      MOTOR_SetSpeed(LEFT, (0.0218+i)*vitesse);
+      MOTOR_SetSpeed(LEFT, (0.0238+i)*vitesse);
       delay(102);
     }
-    delay(870);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
+    delay(600);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
   }
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-  
+  */
+  for(double i=0.1;i<=0.6;i+=0.1)       
+    {
+      MOTOR_SetSpeed(RIGHT,i*vitesse);
+      MOTOR_SetSpeed(LEFT, (i+0.0138)*vitesse);
+      delay(102);
+    }
+    delay(420);
+  for(double i=0.6;i>=0;i-=0.2)       
+    {
+      MOTOR_SetSpeed(RIGHT,i*vitesse);
+      MOTOR_SetSpeed(LEFT, (i+0.0138)*vitesse);
+      delay(102);
+    }
+    //delay(600);
+
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
 };
 
-void recule(){
-  MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
-  MOTOR_SetSpeed(LEFT, -vitesse);
-};
-
-void tourneDroit(){         //a rvoir la boucle for pour l'acceleration
-  delay(500);
+void tourneDroit(){         //a revoir la boucle for pour l'acceleration
+  //delay(800);
   for(double i = 0.2; i <= 0.4; i += 0.05)
   {
     MOTOR_SetSpeed(RIGHT, (-i) * vitesse);
     MOTOR_SetSpeed(LEFT, (0.1 + i) * vitesse);
-    delay(160);
+    delay(140);
   }
   /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
   MOTOR_SetSpeed(LEFT, 0.175*vitesse);
@@ -99,14 +111,14 @@ void tourneDroit(){         //a rvoir la boucle for pour l'acceleration
 };
 
 void tourneGauche(){
-  delay(500);
+  //delay(800);
   for(double i = 0.2; i <= 0.4; i += 0.05)
   {
     MOTOR_SetSpeed(RIGHT, (i) * vitesse);
     MOTOR_SetSpeed(LEFT, (-0.1 -i) * vitesse);
-    delay(163);
+    delay(139);
   }
-  delay(10);
+  //delay(10);
   //delay(200);
   //MOTOR_SetSpeed(RIGHT, 0.175*vitesse);
   //MOTOR_SetSpeed(LEFT, -0.175*vitesse);
@@ -140,14 +152,14 @@ bool murDetecte(){
 }
 void faitDemiTour()
 {
-  delay(500);
+  //delay(500);
   for(double i = 0.2; i <= 0.4; i += 0.05)
   {
     MOTOR_SetSpeed(RIGHT, (i) * vitesse);
     MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
     delay(160);
   }
-  delay(525);
+  delay(368);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(150);

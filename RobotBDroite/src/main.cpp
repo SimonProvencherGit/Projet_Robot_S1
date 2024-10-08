@@ -69,7 +69,7 @@ void avance(){
       MOTOR_SetSpeed(LEFT, (0.0218+i)*vitesse);
       delay(102);
     }
-    delay(870);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
+    delay(870);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier***
   }
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
@@ -131,12 +131,12 @@ bool murDetecte(){
   vert = digitalRead(vertpin);
   rouge = digitalRead(rougepin);
 
-   if (vert && rouge){ // aucun obstacle => avance
-      return false;
-    }
-    if (!vert && !rouge){  // obstacle devant => recule
-      return true;
-    }
+  if (vert && rouge) // aucun obstacle => avance
+    return false;
+  
+  else if(!vert && !rouge)  // obstacle devant => recule
+    return true;
+  
 }
 void faitDemiTour()
 {
