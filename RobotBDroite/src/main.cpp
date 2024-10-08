@@ -32,13 +32,11 @@ float vitesse = 1;
 bool depart = false;
 int sifletAmbient = 35;
 int siflet5Khz = 43;
+char chemin[30];
+int nbAction = 0;
 
 int posX = 1;
 int posY = 1;
-
-/*
-Vos propres fonctions sont creees ici
-*/
 
 void beep(int count){
   for(int i=0;i<count;i++){
@@ -56,12 +54,26 @@ void arret(){
 };
 
 void avance(){
-  MOTOR_SetSpeed(RIGHT,0.5*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.5*vitesse);
-  delay(1320);
+
+  if(chemin[nbAction-1] == 'A')
+  {
+    MOTOR_SetSpeed(RIGHT,0.6*vitesse);
+    MOTOR_SetSpeed(LEFT, 0.6218*vitesse);
+    delay(1110);
+  }
+  else        //il faut calculer le temps pour avancer de 0.5m
+  {
+    for(double i=0.2;i<=0.6;i+=0.1)       
+    {
+      MOTOR_SetSpeed(RIGHT,i*vitesse);
+      MOTOR_SetSpeed(LEFT, (0.0218+i)*vitesse);
+      delay(102);
+    }
+    delay(870);  //ajout du delai apres qu'il a finit d'accelerer pour qu'il avance de 0.5m  ***a modifier
+  }
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
-
+  
 };
 
 void recule(){
@@ -69,18 +81,39 @@ void recule(){
   MOTOR_SetSpeed(LEFT, -vitesse);
 };
 
-void tourneDroit(){
+void tourneDroit(){         //a rvoir la boucle for pour l'acceleration
   delay(500);
-  MOTOR_SetSpeed(RIGHT, -0.25*vitesse);
-  MOTOR_SetSpeed(LEFT, 0.25*vitesse);
-  delay(720);
+  for(double i = 0.2; i <= 0.4; i += 0.05)
+  {
+    MOTOR_SetSpeed(RIGHT, (-i) * vitesse);
+    MOTOR_SetSpeed(LEFT, (0.1 + i) * vitesse);
+    delay(160);
+  }
+  /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.175*vitesse);
+  delay(1223);*/
+  //delay(10);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  delay(150);
 };
 
 void tourneGauche(){
   delay(500);
-  MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
-  MOTOR_SetSpeed(LEFT, -0.25*vitesse);
-  delay(720);
+  for(double i = 0.2; i <= 0.4; i += 0.05)
+  {
+    MOTOR_SetSpeed(RIGHT, (i) * vitesse);
+    MOTOR_SetSpeed(LEFT, (-0.1 -i) * vitesse);
+    delay(163);
+  }
+  delay(10);
+  //delay(200);
+  //MOTOR_SetSpeed(RIGHT, 0.175*vitesse);
+  //MOTOR_SetSpeed(LEFT, -0.175*vitesse);
+  //delay(1210);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  delay(150);
 };
 
 bool detectSiflet(){
@@ -107,37 +140,53 @@ bool murDetecte(){
 }
 void faitDemiTour()
 {
-  delay(100);
-  MOTOR_SetSpeed(RIGHT, 0.25);
-  MOTOR_SetSpeed(LEFT, -0.25);
-  delay(1550);
+  delay(500);
+  for(double i = 0.2; i <= 0.4; i += 0.05)
+  {
+    MOTOR_SetSpeed(RIGHT, (i) * vitesse);
+    MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
+    delay(160);
+  }
+  delay(525);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
+  delay(150);
+  /*delay(100);
+  MOTOR_SetSpeed(RIGHT, 0.185 * vitesse);
+  MOTOR_SetSpeed(LEFT, -0.185 * vitesse);
+  delay(2350);
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  delay(100);*/
 }
 
-/*s'il va vers la droite, il avance de 0.5m et verifie s'il peut avancer jusqu'a ce qu'il puisse avancer*/
-void ActionSensDroit()
+/*s'il va vers la droite, il verifie toutes les 0.5m s'il peut avancer (y++)*/
+void ActionSensGauche()
 {
-  
   bool progres = false;
 
   while (progres == false)
   {
     avance();
     posX++;
+    chemin[nbAction] = 'G';
+    nbAction++;
 
-    tourneGauche();
+    tourneDroit();
+    delay(100);
     
     if(murDetecte())
     {
-      delay(200);
-      tourneDroit();
+      delay(100);
+      tourneGauche();
     }
     else
     {
       progres = true;
       avance();
       posY++;
+      chemin[nbAction] = 'A';
+      nbAction++;
     }
   }
 }
@@ -164,18 +213,7 @@ Fonctions de boucle infini
 */
 void loop() 
 {
-  //avance();
-  //tourneDroit();
-  //avance();
-  //tourneGauche();
-  //avance();
- // faitDemiTour();
- //ActionSensDroit();
-
- /* while (true)
-  {
-    delay(100);
-  }*/
+  depart = false;
 
   if(detectSiflet())
     depart = true;
@@ -186,39 +224,118 @@ void loop()
     {
       if(murDetecte())
       {
-        if(posX != 0) //si on est pas sur l'extrémité gauche
+        if(posX != 2) //si on est pas sur l'extrémité gauche
         {
-          tourneGauche();
+          tourneDroit();
           
           if(murDetecte()) //si mur devant et mur a gauche
           {
+            delay(100);
             faitDemiTour();
             
-            ActionSensDroit();
+            ActionSensGauche();
           }
-          else  //mur devant et pas de mur a gauche
+          else 
           {
+            //delay(100);
             avance();
             posX--;
-            tourneDroit();
+            chemin[nbAction] = 'D';
+            nbAction++;
+            tourneGauche();
+            //delay(300);
           }
         }
         else  //si on est sur l'extrémité gauche
         {
-          tourneDroit();
+          tourneGauche();
           
-          ActionSensDroit();
+          ActionSensGauche();
         }
       }
       else  //si on peut avancer
       {
         avance();
         posY++;
+        chemin[nbAction] = 'A';
+        nbAction++;
       }
     }
     
     faitDemiTour();
     posY = 1;
-    posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
+    //posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
+
+    while(posY < 10) 
+    {
+      for(int i = nbAction; i >= 0; i--)
+      {
+        if(chemin[i] == 'A')
+        {
+          posY++; 
+
+          if(chemin[i+1] == 'G')
+          {
+            tourneDroit();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            tourneGauche();
+            //delay(100);
+            avance();
+          }
+          else
+          {
+            avance();
+          }
+        }
+        else if(chemin[i] == 'G')
+        {
+          if(chemin[i+1] == 'A')
+          {
+            tourneGauche();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'G')
+          {
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            faitDemiTour();
+            //delay(100);
+            avance();
+          }
+        }
+        else if(chemin[i] == 'D')
+        {
+          if(chemin[i+1] == 'A')
+          {
+            tourneDroit();
+            //delay(100);
+            avance(); 
+          }
+          else if(chemin[i+1] == 'G')
+          {
+            faitDemiTour();
+            //delay(100);
+            avance();
+          }
+          else if(chemin[i+1] == 'D')
+          {
+            avance();
+          }
+        }
+      }
+    }
   }
+ /* beep(3);
+  while (true)
+  {
+    tourneGauche();
+    delay(100);
+  }*/
 }
