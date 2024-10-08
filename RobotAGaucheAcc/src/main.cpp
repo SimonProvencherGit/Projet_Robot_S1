@@ -101,6 +101,7 @@ void tourneDroit(){         //a revoir la boucle for pour l'acceleration
     MOTOR_SetSpeed(LEFT, (0.1 + i) * vitesse);
     delay(140);
   }
+  delay(5);
   /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
   MOTOR_SetSpeed(LEFT, 0.175*vitesse);
   delay(1223);*/
@@ -116,9 +117,9 @@ void tourneGauche(){
   {
     MOTOR_SetSpeed(RIGHT, (i) * vitesse);
     MOTOR_SetSpeed(LEFT, (-0.1 -i) * vitesse);
-    delay(139);
+    delay(141);
   }
-  //delay(10);
+  delay(7);
   //delay(200);
   //MOTOR_SetSpeed(RIGHT, 0.175*vitesse);
   //MOTOR_SetSpeed(LEFT, -0.175*vitesse);
@@ -159,7 +160,7 @@ void faitDemiTour()
     MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
     delay(160);
   }
-  delay(378);
+  delay(400);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(150);
