@@ -159,7 +159,7 @@ void faitDemiTour()
     MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
     delay(160);
   }
-  delay(368);
+  delay(378);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(150);
