@@ -53,6 +53,21 @@ void arret(){
   MOTOR_SetSpeed(LEFT, 0);
 };
 
+bool tapeCentre()
+{
+  if(posX ==1)
+  {
+    if(posY == 1 || posY == 3 || posY ==7 || posY == 9)
+    {
+      return true;
+    }
+  }
+  else
+  {
+    return false;
+  }
+}
+
 void avance(){
 /*
  if(chemin[nbAction-1] == 'A')
@@ -74,17 +89,17 @@ void avance(){
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   */
-  for(double i=0.1;i<=0.6;i+=0.1)       
+    for(double i=0.1;i<=0.6;i+=0.1)       
     {
       MOTOR_SetSpeed(RIGHT,i*vitesse);
-      MOTOR_SetSpeed(LEFT, (i+0.0138)*vitesse);
+      MOTOR_SetSpeed(LEFT, (i+0.0235)*vitesse);
       delay(102);
     }
-    delay(420);
+    delay(400);
   for(double i=0.6;i>=0;i-=0.2)       
     {
       MOTOR_SetSpeed(RIGHT,i*vitesse);
-      MOTOR_SetSpeed(LEFT, (i+0.0138)*vitesse);
+      MOTOR_SetSpeed(LEFT, (i+0.0235)*vitesse);
       delay(102);
     }
     //delay(600);
@@ -99,7 +114,7 @@ void tourneDroit(){         //a revoir la boucle for pour l'acceleration
   {
     MOTOR_SetSpeed(RIGHT, (-i) * vitesse);
     MOTOR_SetSpeed(LEFT, (0.1 + i) * vitesse);
-    delay(140);
+    delay(137);
   }
   /*MOTOR_SetSpeed(RIGHT, -0.175*vitesse);
   MOTOR_SetSpeed(LEFT, 0.175*vitesse);
@@ -116,7 +131,7 @@ void tourneGauche(){
   {
     MOTOR_SetSpeed(RIGHT, (i) * vitesse);
     MOTOR_SetSpeed(LEFT, (-0.1 -i) * vitesse);
-    delay(139.5);
+    delay(136);
   }
   //delay(10);
   //delay(200);
@@ -159,7 +174,7 @@ void faitDemiTour()
     MOTOR_SetSpeed(LEFT, (-0.1 - i) * vitesse);
     delay(160);
   }
-  delay(378);
+  delay(358);
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
   delay(150);
@@ -180,17 +195,17 @@ void ActionSensGauche()
   while (progres == false)
   {
     avance();
-    posX--;
-    chemin[nbAction] = 'G';
+    posX++;
+    chemin[nbAction] = 'D';
     nbAction++;
 
-    tourneDroit();
+    tourneGauche();
     delay(100);
     
     if(murDetecte())
     {
       delay(100);
-      tourneGauche();
+      tourneDroit();
     }
     else
     {
@@ -232,9 +247,9 @@ void loop()
   
   if(depart)
   {
-    while(posY < 10) //si on est pas a la fin du labyrinthe
+    while(posY < 11) //si on est pas a la fin du labyrinthe
     {
-      if(murDetecte())
+      if(murDetecte()|| tapeCentre())
       {
         if(posX != 2) //si on est pas sur l'extrémité gauche
         {
@@ -274,12 +289,30 @@ void loop()
       }
     }
     
-    faitDemiTour();
+    //faitDemiTour();
     posY = 1;
     //posX = (posX == 0 ? 2 : posX == 2 ? 0 : 1);
-
-    while(posY < 10) 
+    if (posX == 0)
     {
+      tourneDroit();
+      avance();
+      tourneDroit();
+    }
+    else if(posX == 1)
+    {
+      faitDemiTour();
+    }
+    else if(posX == 2)
+    {
+      tourneGauche();
+      avance();
+      tourneGauche();
+    }
+    while(posY < 12) 
+    {
+      avance();
+      posY++;
+      /*
       for(int i = nbAction; i >= 0; i--)
       {
         if(chemin[i] == 'A')
@@ -342,7 +375,8 @@ void loop()
           }
         }
       }
-    }
+    }*/
+  }
   }
  /* beep(3);
   while (true)
