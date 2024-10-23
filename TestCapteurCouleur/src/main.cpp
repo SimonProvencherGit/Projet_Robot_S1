@@ -25,30 +25,49 @@ void setup()
 
 
 void loop(void) {
-  uint16_t r, g, b, c, colorTemp, lux;
-  bool capt1,capt2,capt3;
-
-  tcs.getRawData(&r, &g, &b, &c);
-  //colorTemp = tcs.calculateColorTemperature(r, g, b);
-  //lux = tcs.calculateLux(r, g, b);
-
-  //Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
-  //Serial.print("Lux: "); Serial.print(lux, DEC); Serial.print(" - ");
- 
-  capt1 = digitalRead(A0);
-  capt2 = digitalRead(A1);
-  capt3 = digitalRead(A2);
-
-  Serial.print(capt1,DEC);
-  Serial.print(capt2,DEC);
-  Serial.print(capt3,DEC);
-  Serial.print("   ");
- 
-  Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
-  Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
-  Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
-  Serial.print("C: "); Serial.print(c, DEC); Serial.print(" ");
-  Serial.println(" ");
+    uint16_t r, g, b, c, colorTemp, lux;
+    bool capt1,capt2,capt3;
+    int limiteR = 60;
+    int limiteG = 190;
+    int limiteB = 50;
+    int limiteJ = 80;
 
 
+    tcs.getRawData(&r, &g, &b, &c);
+    //colorTemp = tcs.calculateColorTemperature(r, g, b);
+    //lux = tcs.calculateLux(r, g, b);
+
+    //Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
+    //Serial.print("Lux: "); Serial.print(lux, DEC); Serial.print(" - ");
+
+    /*capt1 = digitalRead(A0);
+    capt2 = digitalRead(A1);
+    capt3 = digitalRead(A2);
+
+    Serial.print(capt1,DEC);
+    Serial.print(capt2,DEC);
+    Serial.print(capt3,DEC);
+    Serial.print("   ");*/
+
+    Serial.print("  R: "); Serial.print(r, DEC); Serial.print(" ");
+    Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
+    Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");
+    Serial.print("C: "); Serial.print(c, DEC); Serial.print(" ");
+    Serial.println(" ");
+
+    int red = r;
+    int green = g;
+    int blue = b;
+
+    if(red>705 && green<815 && blue<705)    //red  
+        Serial.print("Rouge identifie");
+    else if(red<750 && green>850 && blue>850)   //blue
+        Serial.print("Bleu identifie");
+    else if(red<630 && green>800 && blue<750)    //green
+        Serial.print("Vert identifie");
+    else if (red>700 && green>850 && blue<760)   //yellow
+        Serial.print("Jaune identifie");
+    else
+        Serial.print("Aucune couleur identifie");
+    
 }
