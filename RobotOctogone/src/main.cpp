@@ -7,7 +7,15 @@
 void tournerAngleDroit(int angle);
 void tournerAngleGauche(int angle);
 bool detectSiflet();
-
+void premierVirage(int couleur);
+void allerCentreDebut();
+void touverLigneExtremite();
+void prendreValeurSuiveur();
+int detectCouleur();
+void suiveurLigne();
+void TestTestTest();
+void V2();
+void tournantSuite(int nbOjetsButs);
 
 // Déclaration des variables globales
 
@@ -20,7 +28,8 @@ bool bumperArriere;
 uint8_t id = 3;
 int vitesse = 1;
 String couleur[5] = {"Aucune","Rouge","Bleu","Vert","Jaune"};
-
+int nbObjetsButs = 0;
+int capt1,capt2,capt3;
 
 void setup() {
   BoardInit();
@@ -42,6 +51,40 @@ void setup() {
 
 void loop() {
   int couleur;
+  bool sortie = false;
+  
+  while(sortie == false)
+  {
+    for(int i=0; i<50;i++)
+    {
+      MOTOR_SetSpeed(LEFT, 0.3);
+      MOTOR_SetSpeed(RIGHT, 0.15);
+      prendreValeurSuiveur();
+      if(capt1 ==1 || capt3 == 1)
+      {
+        MOTOR_SetSpeed(LEFT, 0);
+        MOTOR_SetSpeed(RIGHT, 0);
+        sortie = true;
+        suiveurLigne();
+      }
+    }
+    for(int i=0; i<50;i++)
+    {
+      MOTOR_SetSpeed(LEFT, 0.15);
+      MOTOR_SetSpeed(RIGHT, 0.3);
+      prendreValeurSuiveur();
+      if(capt1 ==1 || capt3 == 1)
+      {
+        MOTOR_SetSpeed(LEFT, 0);
+        MOTOR_SetSpeed(RIGHT, 0);
+        sortie = true;
+        suiveurLigne();
+      }
+    }
+      while (1);
+  }  
+  //V2();
+  //touverLigneExtremite();
 
   bumperArriere = ROBUS_IsBumper(id);
 
@@ -49,15 +92,33 @@ void loop() {
       depart = true;
 
   if(depart) {
+    
     couleur = detectCouleur();
+    
     if(couleur != 0)
-    {
-      
-    } 
+    { 
+      //code pour trouver la premiere ligne et se rendre au centre
+
+      if(nbObjetsButs == 0)   //tourner pour faire face au bon triangle
+      {
+        premierVirage(couleur);
+      }
+      else
+      {
+        tournantSuite(nbObjetsButs);      
+      }
+    }
+
+    //code pour trouver objet
+
+    //code pour trouver la ligne sur l'extrimite et se diriger vers le but
+
+    //code pour deposer l'objet dans le but et se replacer pour etre pret a repartir au centre
+    // code doit, des qu'il voit de la couleur au lieu du blanc, reculer en pivorant sur la roue de droite pour 
+    //qu'il puisse avancer jusqu'a ce qu'il voit une ligne pour se rendre au centre
+
   }
-
 }
-
 
 void tournerAngleGauche(int angle) 
 {
@@ -201,54 +262,44 @@ bool detectSiflet(){
 
 void suiveurLigne()
 {
-  int capt1,capt2,capt3;
-    
-  capt1 = analogRead(A0);            //lecture des capteurs de détecteurs de ligne
-  capt2 = analogRead(A1);
-  capt3 = analogRead(A2);
+  bool sort = false;
 
-  if(capt1<500)
-      capt1 = 0;
-  else if(capt1>=500)
-      capt1 = 1;
-  
-  if(capt2<100)
-      capt2 = 0;
-  else if(capt2>=100)
-      capt2 = 1;  
-  
-  if(capt3<100)
-      capt3 = 0;
-  else if(capt3>=100)
-      capt3 = 1;
-  
-  if(capt1 == 0 && capt2 == 1 && capt3 == 0)
+  while(sort == false)
   {
-      MOTOR_SetSpeed(RIGHT,0.3*vitesse);
-      MOTOR_SetSpeed(LEFT,0.3*vitesse);
+    prendreValeurSuiveur();
+    
+    if(capt1 == 0 && capt2 == 1 && capt3 == 0)
+    {
+        MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+        MOTOR_SetSpeed(LEFT,0.3*vitesse);
+    }
+    else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
+    {
+        MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+        MOTOR_SetSpeed(LEFT,0);
+    }
+    else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
+    {
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0.3*vitesse);
+    }
+    else if(capt1 == 1 && capt2 == 1 && capt3 == 1)
+    {
+        MOTOR_SetSpeed(RIGHT,0.3);
+        MOTOR_SetSpeed(LEFT,0.3);
+        delay(1000);
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0);
+
+        sort = true;  
+        while(1); 
+    }
   }
-  else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
-  {
-      MOTOR_SetSpeed(RIGHT,0.3*vitesse);
-      MOTOR_SetSpeed(LEFT,0);
-  }
-  else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
-  {
-      MOTOR_SetSpeed(RIGHT,0);
-      MOTOR_SetSpeed(LEFT,0.3*vitesse);
-  }
-  else if(capt1 == 1 && capt2 == 1 && capt3 == 1)
-  {
-      MOTOR_SetSpeed(RIGHT,0.3);
-      MOTOR_SetSpeed(LEFT,0.3);
-      delay(1000);
-      MOTOR_SetSpeed(RIGHT,0);
-      MOTOR_SetSpeed(LEFT,0);
-  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
 }
 
-//fonction pour detecter la couleur
-//retourne 1 si rouge, 2 si bleu, 3 si vert, 4 si jaune, 0 si aucune couleur
+//detecte couleur  --> retourne 1 si rouge, 2 si bleu, 3 si vert, 4 si jaune, 0 si aucune couleur
 int detectCouleur()
 {
   uint16_t r, g, b, c;
@@ -259,16 +310,37 @@ int detectCouleur()
   int green = g;
   int blue = b;
 
-  if(red>740 && green<815 && blue<705)    //verifie les valeurs rgb pour rouge
+  int rRed = 865;
+  int gRed = 853;
+  int bRed = 690;
+
+  int rBlue = 544;
+  int gBlue = 863;
+  int bBlue = 769;
+
+  int rGreen = 570;
+  int gGreen = 932;
+  int bGreen = 697;
+
+  int rYellow = 1343;
+  int gYellow = 1516;
+  int bYellow = 901;
+
+
+  /*Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
+  Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
+  Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");*/
+
+  if(red - rRed < 50 && green - gRed < 50 && blue - bRed < 50)    
     return 1;
     //Serial.print("Rouge identifie");
-  else if(red<650 && green>760 && blue>670)   //pour bleu
+  else if(red - rBlue && green-gBlue < 50 && blue - bBlue < 50)   //pour bleu
     return 2;
   //Serial.print("Bleu identifie");
-  else if(red<630 && green>800 && blue<750)    //pour vert
+  else if(red-rGreen <50 && green - gGreen <50 && blue - bGreen <50)    //pour vert
     return 3;
     //Serial.print("Vert identifie");
-  else if (red>700 && green>850 && blue<760)   //pour jaune
+  else if (red-rYellow < 70 && green - gYellow < 70 && blue -bYellow <70)   //pour jaune
     return 4;  
     //Serial.print("Jaune identifie");
   else
@@ -276,4 +348,252 @@ int detectCouleur()
     //Serial.print("Aucune couleur identifie");
 }
 
+void premierVirage(int couleur)
+{
+  if(couleur == 1)
+  {
+    tournerAngleGauche(135);
+  }
+  else if(couleur == 2)
+  {
+    tournerAngleDroit(135);
+  }
+  else if(couleur == 3)
+  {
+    tournerAngleGauche(45);
+  }
+  else if(couleur == 4)
+  {
+    tournerAngleDroit(45);
+  }
+  /*else
+  {
+    tournerAngleGauche(360);
+  }*/
+}
 
+
+void tournantSuite(int nbOjetsButs)
+{
+  if (nbObjetsButs == 1)
+  {
+    tournerAngleDroit(135);
+  }
+  else if (nbObjetsButs == 2)
+  {
+    tournerAngleDroit(45);
+  }
+  else if (nbObjetsButs == 3)
+  {
+    tournerAngleGauche(45);
+  }
+}
+
+//recule en demi lune pour lacher objet
+void deposerObjet()
+{
+
+}
+
+void allerCentreDebut(int couleur)
+{
+  bool sortie = false;
+
+  while(couleur != 0)
+  {
+    MOTOR_SetSpeed(LEFT, 0.2);
+    MOTOR_SetSpeed(RIGHT, 0.2);
+    couleur = detectCouleur();
+  }
+  while(sortie == false)
+  {
+    for(int i=0; i<400;i++)
+    {
+      MOTOR_SetSpeed(LEFT, 0.3);
+      MOTOR_SetSpeed(RIGHT, 0.15);
+      prendreValeurSuiveur();
+      if(capt1 ==1 || capt3 == 1)
+      {
+        MOTOR_SetSpeed(LEFT, 0);
+        MOTOR_SetSpeed(RIGHT, 0);
+        sortie = true;
+      }
+    }
+    for(int i=0; i<400;i++)
+    {
+      MOTOR_SetSpeed(LEFT, 0.15);
+      MOTOR_SetSpeed(RIGHT, 0.3);
+      prendreValeurSuiveur();
+      if(capt1 ==1 || capt3 == 1)
+      {
+        MOTOR_SetSpeed(LEFT, 0);
+        MOTOR_SetSpeed(RIGHT, 0);
+        sortie = true;
+      }
+    }
+
+    MOTOR_SetSpeed(LEFT,0.3);
+    MOTOR_SetSpeed(RIGHT,0);
+
+    prendreValeurSuiveur();
+
+
+    
+  }
+}
+
+// change la valeur de capt1, capt2, capt3 pour les valeurs lues
+void prendreValeurSuiveur()
+{
+  capt1 = analogRead(A0);            //lecture des capteurs de détecteurs de ligne
+  capt2 = analogRead(A1);
+  capt3 = analogRead(A2);
+
+  if(capt1<500)
+    capt1 = 0;
+  else if(capt1>=500)
+    capt1 = 1;
+  if(capt2<=30)
+    capt2 = 0;
+  else if(capt2>30)
+    capt2 = 1;  
+  if(capt3<100)
+    capt3 = 0;
+  else if(capt3>=100)
+    capt3 = 1;
+
+  Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
+  Serial.print("   "); 
+  Serial.print(capt2,DEC);
+  Serial.print("   ");
+  Serial.print(capt3,DEC);
+  Serial.println("   ");   
+}
+
+void touverLigneExtremite()
+{ 
+  bool sortie = false;
+
+  while(sortie == false)
+  {
+    prendreValeurSuiveur();
+
+    if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(LEFT,0.3);
+      MOTOR_SetSpeed(RIGHT,0.3);
+
+      prendreValeurSuiveur();
+    }
+    else if(capt1 == 1)
+    {
+      while(capt1 == 1) 
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+        
+      }
+      while(capt1 != 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+      }
+      
+      MOTOR_SetSpeed(RIGHT,0);
+
+      suiveurLigne();
+      sortie = true;
+    }
+    else if(capt3 == 1)
+    {
+      //while(1);
+      suiveurLigne();
+      sortie = true;
+    }
+  }
+}
+
+void TestTestTest()     //code pour tester fonctionnement du capt1 suiveur le ligne   ----> fonctionne
+{
+   while(1)
+   {
+    prendreValeurSuiveur();
+
+    MOTOR_SetSpeed(LEFT,0.15);
+    MOTOR_SetSpeed(RIGHT,0.15);
+
+    if(capt1 == 1)
+    {
+      while(capt1 == 1) 
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+        
+      }
+      while(capt1 != 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+      }
+
+      MOTOR_SetSpeed(RIGHT,0);
+
+      suiveurLigne();
+    }
+   }
+}
+
+void V2()
+{
+  bool sortie = false;
+
+  while(sortie == false)
+  {
+    prendreValeurSuiveur();
+
+    if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(LEFT,0.3);
+      MOTOR_SetSpeed(RIGHT,0.3);
+
+      prendreValeurSuiveur();
+    }
+    else if(capt1 == 1)
+    {
+      while(capt1 == 1) 
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+        
+      }
+      while(capt1 != 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        
+        prendreValeurSuiveur();
+      }
+      
+      MOTOR_SetSpeed(RIGHT,0);
+
+      suiveurLigne();
+      sortie = true;
+    }
+    else if(capt3 == 1)
+    {
+      //while(1);
+      suiveurLigne();
+      sortie = true;
+    }
+  }
+}
