@@ -2,6 +2,7 @@
 #include <LibRobus.h>
 #include <Wire.h>
 #include "Adafruit_TCS34725.h"
+#include <stdlib.h>
 
 //declaration des fonctions
 void tournerAngleDroit(int angle);
@@ -17,6 +18,8 @@ void TestTestTest();
 void V2();
 void tournantSuite(int nbOjetsButs);
 void allerCentreSuite(int nbObjetsButs);
+void scan90Gauche();
+void scan90Droit();
 
 // Déclaration des variables globales
 
@@ -40,6 +43,9 @@ void setup() {
   pinMode(A1,INPUT);
   pinMode(A2,INPUT);
 
+  SERVO_Disable(0);
+  SERVO_Disable(1);
+
   if (tcs.begin()) {
         Serial.println("Found sensor");
     } else {
@@ -53,37 +59,56 @@ void setup() {
 void loop() {
   int couleur;
   
+  scan90Droit();
+
+  while(1);
   //suiveurLigne();
-  //while(1);
+  /*while(1)
+  {
+    couleur = detectCouleur();
+    Serial.println(couleur);
+  }*/
   //V2();
   //touverLigneExtremite();
 
   bumperArriere = ROBUS_IsBumper(id);
 
   if(bumperArriere)
-      depart = true;
+    depart = true;
 
   if(depart) {
     
-    couleur = detectCouleur();
+    while(couleur == 0)
+    {
+      couleur = detectCouleur();
+      delay(5);
+    }
     
-    //if(couleur != 0)
-    //{ 
-      allerCentreDebut(couleur);
+    allerCentreDebut(couleur);
 
-      if(nbObjetsButs == 0)   //tourner pour faire face au bon triangle
-      {
-        MOTOR_SetSpeed(LEFT,0);
-        MOTOR_SetSpeed(RIGHT,0);
-              
-        //premierVirage(couleur);   // attention, remettre couleur dans la parenthese pas un chiffre, jsute pour tester le chiffre
-        premierVirage(1);
-      }
-      else
-      {
-        tournantSuite(nbObjetsButs);      
-      }
-    //}
+    if(nbObjetsButs == 0)   //tourner pour faire face au bon triangle
+    {
+      MOTOR_SetSpeed(LEFT,0);
+      MOTOR_SetSpeed(RIGHT,0);
+            
+      //premierVirage(couleur);   // attention, remettre couleur dans la parenthese pas un chiffre, jsute pour tester le chiffre
+      premierVirage(1);
+      //while(1);
+    }
+    else
+    {
+      tournantSuite(nbObjetsButs);      
+    }
+    MOTOR_SetSpeed(LEFT,0.3);
+    MOTOR_SetSpeed(RIGHT,0.3);
+    delay(1000);
+    MOTOR_SetSpeed(LEFT,0);
+    MOTOR_SetSpeed(RIGHT,0);
+    
+    touverLigneExtremite();
+  
+    MOTOR_SetSpeed(LEFT,0);
+    MOTOR_SetSpeed(RIGHT,0);
     //while(1);
     //code pour trouver objet
 
@@ -308,18 +333,19 @@ int detectCouleur()
   Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
   Serial.print("B: "); Serial.print(b, DEC); Serial.print(" ");*/
 
-  if(red - rRed < 50 && green - gRed < 50 && blue - bRed < 50)    
+  if(abs(red - rRed) < 50 && abs(green - gRed) < 50 && abs(blue - bRed) < 50)    
     return 1;
     //Serial.print("Rouge identifie");
-  else if(red - rBlue && green-gBlue < 50 && blue - bBlue < 50)   //pour bleu
+  else if(abs(red - rBlue)<50 && abs(green-gBlue) < 50 && abs(blue - bBlue) < 50)   //pour bleu
     return 2;
   //Serial.print("Bleu identifie");
-  else if(red-rGreen <50 && green - gGreen <50 && blue - bGreen <50)    //pour vert
+  else if(abs(red-rGreen) <50 && abs(green - gGreen) <50 && abs(blue - bGreen) <50)    //pour vert
     return 3;
     //Serial.print("Vert identifie");
-  else if (red-rYellow < 70 && green - gYellow < 70 && blue -bYellow <70)   //pour jaune
+  else if (abs(red-rYellow) < 70 && abs(green - gYellow) < 70 && abs(blue -bYellow) <70)   //pour jaune
     return 4;  
     //Serial.print("Jaune identifie");
+  
   else
     return 0;
     //Serial.print("Aucune couleur identifie");
@@ -333,20 +359,22 @@ void premierVirage(int couleur)
   }
   else if(couleur == 2)
   {
-    tournerAngleDroit(135);
+    tournerAngleDroit(45);
   }
   else if(couleur == 3)
   {
-    tournerAngleGauche(45);
+    tournerAngleDroit(135);
   }
   else if(couleur == 4)
   {
-    tournerAngleDroit(45);
+    tournerAngleGauche(45);
   }
   /*else
   {
     tournerAngleGauche(360);
   }*/
+  MOTOR_SetSpeed(LEFT,0);
+  MOTOR_SetSpeed(RIGHT,0);
 }
 
 
@@ -475,7 +503,7 @@ void prendreValeurSuiveur()
   Serial.println("   ");   
 }
 
-void touverLigneExtremite()
+void touverLigneExtremite()      // a retravailler cas ou les 3 capteurs sont sur la ligne   *****************************************************************************
 { 
   bool sortie = false;
 
@@ -601,4 +629,84 @@ void V2()
       sortie = true;
     }
   }
+}
+
+void scan90Gauche()
+{
+  int Md = 0;
+  int Mg = 0;
+  int seuilAngle = 1905;
+
+  ENCODER_Reset(LEFT);
+  ENCODER_Reset(RIGHT);
+
+  while(Md<seuilAngle)        
+  {
+    MOTOR_SetSpeed(RIGHT, 0.05);
+    MOTOR_SetSpeed(LEFT, -0.05);
+    Md = ENCODER_Read(RIGHT);
+    Mg = ENCODER_Read(LEFT);
+    //si detecte objet arrete de tourner et avance chercher l'objet
+  }
+  //Mg = Mg -1;
+  Mg = -1;
+  while(Mg-Md >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses les moteurs sont pas allignés
+  {
+    while(Mg>=Md)
+    {
+      MOTOR_SetSpeed(RIGHT, 0.0);
+      MOTOR_SetSpeed(LEFT, 0.1);
+      Mg = ENCODER_Read(LEFT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+    while(Mg<=Md)
+    {
+      MOTOR_SetSpeed(RIGHT, 0.0);
+      MOTOR_SetSpeed(LEFT, -0.1);
+      Mg = ENCODER_Read(LEFT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  delay(175);
+}
+
+void scan90Droit()
+{
+  int seuilAngle = 1905;
+  int Md = 0;
+  int Mg = 0;
+  ENCODER_Reset(LEFT);
+  ENCODER_Reset(RIGHT);
+  
+  while(Md<seuilAngle)
+  {
+    MOTOR_SetSpeed(LEFT, 0.05);
+    MOTOR_SetSpeed(RIGHT, -0.05);
+    Md = ENCODER_Read(LEFT);
+    Mg = ENCODER_Read(RIGHT);
+  }
+  //Mg = Mg -1;
+  Mg = -1;
+  while(Mg-Md >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses
+  {
+    while(Mg>=Md)
+    {
+      MOTOR_SetSpeed(LEFT, 0.0);
+      MOTOR_SetSpeed(RIGHT, 0.1);
+      Mg = ENCODER_Read(RIGHT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+    while(Mg<=Md)
+    {
+      MOTOR_SetSpeed(LEFT, 0.0);
+      MOTOR_SetSpeed(RIGHT, -0.1);
+      Mg = ENCODER_Read(RIGHT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  delay(100);
 }
