@@ -20,10 +20,14 @@ void suiveurLigne();
 void TestTestTest();
 void V2();
 void tournantSuite(int nbOjetsButs);
-void allerCentreSuite(int nbObjetsButs);
+void allerCentreSuite();
 void scan90Gauche();
 void scan90Droit();
 void PrendreObjet();
+void getdistance();
+void ferme_bras();
+void suiveurLigneObjet();
+void placerObjet();
 
 // Déclaration des variables globales
 
@@ -39,10 +43,8 @@ int nbObjetsButs = 0;
 int capt1,capt2,capt3;
 int couleur = 0;
 int hasobject = 0;
-
-
-
-
+int distance_cm = 0;
+int backup = 0;
 
 void setup() {
   BoardInit();
@@ -65,49 +67,27 @@ void setup() {
 
 }
 
- int distance_cm;
-
-void ferme_bras()
-{
-  SERVO_Enable(1);
-  SERVO_Enable(0);
-  delay(5);
-  SERVO_SetAngle(0,115);
-  SERVO_SetAngle(1,65);
-}
-
-void getdistance()
-  {
-    SharpIR mySensor = SharpIR(IRPin, model);
-    distance_cm = mySensor.distance();
-    Serial.println(distance_cm);
-  }
-
 void loop() {
 
-//scan90Gauche();
+  //scan90Gauche();
   // Detection d'objet
 
-
-  //tournerAngleDroit(45);tournerAngleGauche((360-45));
-  //premierVirage(4);
   //touverLigneExtremite();
+  
+  //suiveurLigne();
+  //suiveurLigneObjet();
+  //while(1);
 
   //scan90Gauche();
   //scan90Droit();
-  //while(1);
+
   /*while(1)
   {
     detectCouleur();
     Serial.println(couleur);
     //prendreValeurSuiveur();
-    delay(300);
+    delay(10);
   }*/
-  //suiveurLigne();
-
-  //V2();
-  //touverLigneExtremite();
-
 
   bumperArriere = ROBUS_IsBumper(id);
 
@@ -117,48 +97,33 @@ void loop() {
 
   if(depart) {
 
-    while(couleur == 0)
+    while(couleur == 0 && nbObjetsButs == 0)
     {
       detectCouleur();
       //Serial.println(couleur);
       delay(5);
+      backup++;
+      if(backup == 1000)
+      {
+        break;
+      }
     }
-
-    allerCentreDebut();
 
     if(nbObjetsButs == 0)   //tourner pour faire face au bon triangle
     {
+      allerCentreDebut();
+
       MOTOR_SetSpeed(LEFT,0);
       MOTOR_SetSpeed(RIGHT,0);
 
-      //while(1);
       premierVirage();
-      //premierVirage(2);
-      //while(1);
     }
     else
     {
       tournantSuite(nbObjetsButs);
     }
-    /*MOTOR_SetSpeed(LEFT,0.35);
-    MOTOR_SetSpeed(RIGHT,0.3);
-    delay(1000);
     MOTOR_SetSpeed(LEFT,0);
     MOTOR_SetSpeed(RIGHT,0);
-    //while(1);
-    touverLigneExtremite();*/
-
-    MOTOR_SetSpeed(LEFT,0);
-    MOTOR_SetSpeed(RIGHT,0);
-    //while(1);
-    //code pour trouver objet
-
-    //code pour trouver la ligne sur l'extrimite et se diriger vers le but
-
-    //code pour deposer l'objet dans le but et se replacer pour etre pret a repartir au centre
-    // code doit, des qu'il voit de la couleur au lieu du blanc, reculer en pivorant sur la roue de droite pour
-    //qu'il puisse avancer jusqu'a ce qu'il voit une ligne pour se rendre au centre
-
   }
 }
 
@@ -312,39 +277,6 @@ void suiveurLigne()
   {
     prendreValeurSuiveur();
 
-    if(hasobject == 1)
-    {
-      if(couleur == 1|| couleur == 2 || couleur == 3 || couleur == 4)
-      {
-        SERVO_Enable(0);
-        SERVO_Enable(1);
-        SERVO_SetAngle(0, 100);
-        SERVO_SetAngle(1, 80);
-        delay(500);
-        MOTOR_SetSpeed(RIGHT,0.3);
-        MOTOR_SetSpeed(LEFT,0.3);
-        delay(2000);
-        MOTOR_SetSpeed(RIGHT,0);
-        MOTOR_SetSpeed(LEFT,0);
-        SERVO_Enable(0);
-        SERVO_Enable(1);
-        SERVO_SetAngle(0,60);
-        SERVO_SetAngle(1,90);
-        delay(500);
-        delay(500);
-        MOTOR_SetSpeed(RIGHT,-0.3);
-        MOTOR_SetSpeed(LEFT,-0.3);
-        delay(2000);
-        tournerAngleGauche(120);
-        MOTOR_SetSpeed(RIGHT,0.3);
-        MOTOR_SetSpeed(LEFT,0.3);
-        delay(1000);
-        hasobject = 0;
-        suiveurLigne();
-      }
-
-    }
-
     if(capt1 == 0 && capt2 == 1 && capt3 == 0)
     {
         MOTOR_SetSpeed(RIGHT,0.3*vitesse);
@@ -426,9 +358,9 @@ void detectCouleur()
   int bYellow = 797;*/
 
 
-  Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
+  /*Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
   Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
-  Serial.print("B: "); Serial.print(b, DEC); Serial.println(" ");
+  Serial.print("B: "); Serial.print(b, DEC); Serial.println(" ");*/
 
   if(abs(red - rRed) < 25 && abs(green - gRed) < 25 && abs(blue - bRed) < 25)
   {
@@ -497,32 +429,75 @@ void premierVirage()
   MOTOR_SetSpeed(RIGHT,0);
 }
 
-
 void tournantSuite(int nbOjetsButs)
 {
   if (nbObjetsButs == 1)
   {
-    tournerAngleDroit(135);
+    //tournerAngleDroit(135);
+    tournerAngleGauche(180);
+    scan90Gauche();
   }
   else if (nbObjetsButs == 2)
   {
-    tournerAngleDroit(45);
+    //tournerAngleDroit(45);
+    scan90Droit();
   }
   else if (nbObjetsButs == 3)
   {
-    tournerAngleGauche(45);
+    scan90Gauche();
   }
 }
 
-//recule en demi lune et lacher objet
-void deposerObjet()
+void allerCentreSuite()
 {
+  bool sortie = false;
 
-}
+  while(sortie == false)
+  {
+    prendreValeurSuiveur();
 
-void allerCentreSuite(int nbObjetsButs)
-{
+    if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(LEFT,0.3);
+      MOTOR_SetSpeed(RIGHT,0.3);
 
+      prendreValeurSuiveur();
+    }
+    else if(capt1 == 1 && capt3==1)
+    {
+      tournerAngleGauche(60);
+      suiveurLigne();
+    }
+    else if(capt1 == 1)
+    {
+      while(capt1 == 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+
+        prendreValeurSuiveur();
+
+      }
+      while(capt1 != 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3);
+
+        prendreValeurSuiveur();
+      }
+
+      MOTOR_SetSpeed(RIGHT,0);
+
+      suiveurLigne();
+      sortie = true;
+    }
+    else if(capt3 == 1)
+    {
+      //while(1);
+      suiveurLigne();
+      sortie = true;
+    }
+  }
 }
 
 void allerCentreDebut()
@@ -623,7 +598,7 @@ void prendreValeurSuiveur()
   Serial.println("   ");
 }
 
-void touverLigneExtremite()      // a retravailler cas ou les 3 capteurs sont sur la ligne   *****************************************************************************
+void touverLigneExtremite()      
 {
   bool sortie = false;
 
@@ -641,7 +616,7 @@ void touverLigneExtremite()      // a retravailler cas ou les 3 capteurs sont su
     else if(capt1 == 1 && capt3==1)
     {
       tournerAngleGauche(60);
-      suiveurLigne();
+      suiveurLigneObjet();
     }
     else if(capt1 == 1)
     {
@@ -663,19 +638,17 @@ void touverLigneExtremite()      // a retravailler cas ou les 3 capteurs sont su
 
       MOTOR_SetSpeed(RIGHT,0);
 
-      suiveurLigne();
+      suiveurLigneObjet();
       sortie = true;
     }
     else if(capt3 == 1)
     {
       //while(1);
-      suiveurLigne();
+      suiveurLigneObjet();
       sortie = true;
     }
   }
 }
-
-
 
 void PrendreObjet()
 {
@@ -700,8 +673,8 @@ void PrendreObjet()
     //SERVO_Enable(1);
 
 
-    MOTOR_SetSpeed(RIGHT,0.15);
-    MOTOR_SetSpeed(LEFT,0.15);
+  MOTOR_SetSpeed(RIGHT,0.15);
+  MOTOR_SetSpeed(LEFT,0.15);
   delay(500);
   ferme_bras();
   hasobject = 1;
@@ -810,6 +783,7 @@ void scan90Gauche()
     //si detecte objet arrete de tourner et avance chercher l'objet
     if(distance_cm<37)
     {
+      delay(100);
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       PrendreObjet();
@@ -860,10 +834,10 @@ int Md = 0;
     //si detecte objet arrete de tourner et avance chercher l'objet
     if(distance_cm<37)
     {
+      delay(100);
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       PrendreObjet();
-
     }
     //si detecte objet arrete de tourner et avance chercher l'objet
   }
@@ -889,4 +863,94 @@ int Md = 0;
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
   delay(175);
+}
+
+void ferme_bras()
+{
+  SERVO_Enable(1);
+  SERVO_Enable(0);
+  delay(5);
+  SERVO_SetAngle(0,115);
+  SERVO_SetAngle(1,65);
+}
+
+void getdistance()
+{
+  SharpIR mySensor = SharpIR(IRPin, model);
+  distance_cm = mySensor.distance();
+  Serial.println(distance_cm);
+}
+
+void suiveurLigneObjet()
+{
+  bool sort = false;
+  int coulTemp ;
+  int i =0;
+  
+  //detectCouleur();
+  coulTemp = couleur;
+
+  while(sort == false)
+  {
+    prendreValeurSuiveur();
+    //detectCouleur();
+    
+    if(capt1 == 0 && capt2 == 1 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+      MOTOR_SetSpeed(LEFT,0.3*vitesse);
+      i=0;
+    }
+    else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
+    {
+      MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+      MOTOR_SetSpeed(LEFT,0);
+      i=0;
+    }
+    else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
+    {
+      MOTOR_SetSpeed(RIGHT,0);
+      MOTOR_SetSpeed(LEFT,0.3*vitesse);
+      i=0;
+    }
+    else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      i++;
+      if(i>=55)
+      {
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0);
+        placerObjet();
+        sort = true;
+      }
+    }
+  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+
+}
+
+void placerObjet()
+{
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  
+  //delay(300);
+  MOTOR_SetSpeed(RIGHT,0.3);
+  MOTOR_SetSpeed(LEFT,0.3);
+  delay(1400);
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  SERVO_Enable(0);
+  SERVO_Enable(1);
+  SERVO_SetAngle(0,60);
+  SERVO_SetAngle(1,90);
+  delay(1000);
+  MOTOR_SetSpeed(RIGHT,-0.3);
+  MOTOR_SetSpeed(LEFT,-0.3);
+  delay(2000);
+  tournerAngleGauche(105);
+  hasobject = 0;
+  nbObjetsButs++;
+  allerCentreSuite();
 }
