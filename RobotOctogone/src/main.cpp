@@ -312,6 +312,39 @@ void suiveurLigne()
   {
     prendreValeurSuiveur();
 
+    if(hasobject == 1)
+    {
+      if(couleur == 1|| couleur == 2 || couleur == 3 || couleur == 4)
+      {
+        SERVO_Enable(0);
+        SERVO_Enable(1);
+        SERVO_SetAngle(0, 100);
+        SERVO_SetAngle(1, 80);
+        delay(500);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        MOTOR_SetSpeed(LEFT,0.3);
+        delay(2000);
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0);
+        SERVO_Enable(0);
+        SERVO_Enable(1);
+        SERVO_SetAngle(0,60);
+        SERVO_SetAngle(1,90);
+        delay(500);
+        delay(500);
+        MOTOR_SetSpeed(RIGHT,-0.3);
+        MOTOR_SetSpeed(LEFT,-0.3);
+        delay(2000);
+        tournerAngleGauche(120);
+        MOTOR_SetSpeed(RIGHT,0.3);
+        MOTOR_SetSpeed(LEFT,0.3);
+        delay(1000);
+        hasobject = 0;
+        suiveurLigne();
+      }
+
+    }
+
     if(capt1 == 0 && capt2 == 1 && capt3 == 0)
     {
         MOTOR_SetSpeed(RIGHT,0.3*vitesse);
@@ -665,12 +698,13 @@ void PrendreObjet()
 
     //SERVO_Enable(0);
     //SERVO_Enable(1);
-    hasobject = 1;
+
 
     MOTOR_SetSpeed(RIGHT,0.15);
     MOTOR_SetSpeed(LEFT,0.15);
   delay(500);
   ferme_bras();
+  hasobject = 1;
   touverLigneExtremite();
 }
 
