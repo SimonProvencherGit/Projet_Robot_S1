@@ -38,6 +38,7 @@ int vitesse = 1;
 int nbObjetsButs = 0;
 int capt1,capt2,capt3;
 int couleur = 0;
+int hasobject = 0;
 
 
 
@@ -84,9 +85,6 @@ void getdistance()
 
 void loop() {
 
-//scan90Gauche();
-  PrendreObjet();
-  while(1);
 //scan90Gauche();
   // Detection d'objet
 
@@ -645,14 +643,14 @@ void touverLigneExtremite()      // a retravailler cas ou les 3 capteurs sont su
 }
 
 
-int hasobject = 0;
+
 void PrendreObjet()
 {
   int distance_cm;
   SharpIR mySensor = SharpIR(IRPin, model);
   distance_cm = mySensor.distance();
   //delay(5);
-  while(distance_cm <= 10)
+  while(distance_cm >= 10)
   {
     MOTOR_SetSpeed(RIGHT,0.3);
     MOTOR_SetSpeed(LEFT,0.3);
@@ -661,10 +659,8 @@ void PrendreObjet()
     distance_cm = mySensor.distance();
     delay(5);
   }
-
   // Detection d'objet
-  while (distance_cm <= 10 && distance_cm > 6)
-  {
+
     //Fermer les bras quand l'objet est a 7cm
 
     //SERVO_Enable(0);
@@ -673,17 +669,9 @@ void PrendreObjet()
 
     MOTOR_SetSpeed(RIGHT,0.15);
     MOTOR_SetSpeed(LEFT,0.15);
-    delay(1000);
-
-    delay(500);
-    ferme_bras();
-
-    delay(500);
-    SERVO_Disable(0);
-    SERVO_Disable(1);
-
-    touverLigneExtremite();
-  }
+  delay(500);
+  ferme_bras();
+  touverLigneExtremite();
 }
 
 void TestTestTest()     //code pour tester fonctionnement du capt1 suiveur le ligne   ----> fonctionne
