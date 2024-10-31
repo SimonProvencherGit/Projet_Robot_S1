@@ -19,7 +19,7 @@ void detectCouleur();
 void suiveurLigne();
 void TestTestTest();
 void V2();
-void tournantSuite(int nbOjetsButs);
+void tournantSuite();
 void allerCentreSuite();
 void scan90Gauche();
 void scan90Droit();
@@ -28,6 +28,8 @@ void getdistance();
 void ferme_bras();
 void suiveurLigneObjet();
 void placerObjet();
+void beep(int count);
+
 
 // Déclaration des variables globales
 
@@ -54,6 +56,9 @@ void setup() {
   pinMode(A1,INPUT);
   pinMode(A2,INPUT);
 
+  pinMode(A8,INPUT);   //initialisation des capteurs de sifflet
+  pinMode(A9,INPUT);
+
   SERVO_Disable(0);
   SERVO_Disable(1);
 
@@ -68,44 +73,43 @@ void setup() {
 }
 
 void loop() {
-
-  //scan90Gauche();
-  // Detection d'objet
-
-  //touverLigneExtremite();
-  
-  //suiveurLigne();
+  /*{
+    //detectCouleur();
+    //Serial.println(couleur);
+    prendreValeurSuiveur();
+    delay(100);
+  }*/
   //suiveurLigneObjet();
   //while(1);
-
-  //scan90Gauche();
   //scan90Droit();
-
+  //while(1);
   /*while(1)
   {
-    detectCouleur();
-    Serial.println(couleur);
-    //prendreValeurSuiveur();
-    delay(10);
+    detectSiflet();
+    delay(100);
   }*/
+
+
 
   bumperArriere = ROBUS_IsBumper(id);
 
   if(bumperArriere)
     depart = true;
-
+  
+  if(detectSiflet())
+    depart = true;
 
   if(depart) {
-
+    
     while(couleur == 0 && nbObjetsButs == 0)
     {
       detectCouleur();
       //Serial.println(couleur);
       delay(5);
-      backup++;
-      if(backup == 1000)
+      backup = backup + 1;
+      if(backup == 500)
       {
-        break;
+        couleur = 1;
       }
     }
 
@@ -118,12 +122,12 @@ void loop() {
 
       premierVirage();
     }
-    else
-    {
-      tournantSuite(nbObjetsButs);
-    }
-    MOTOR_SetSpeed(LEFT,0);
-    MOTOR_SetSpeed(RIGHT,0);
+    beep(10);
+
+    tournantSuite();
+    
+    //MOTOR_SetSpeed(LEFT,0);
+    //MOTOR_SetSpeed(RIGHT,0);
   }
 }
 
@@ -259,9 +263,15 @@ void tournerAngleDroit(int angle)
 
 bool detectSiflet(){
 
- int pin35 = digitalRead(sifletAmbient);
- int pin43 = digitalRead(siflet5Khz);
-  if(pin35 && pin43){
+ int pin35 = analogRead(A9);
+ int pin43 = analogRead(A8);
+
+  Serial.print("pin35: ");
+  Serial.print(pin35);
+  Serial.print("  pin43: ");
+  Serial.println(pin43);
+
+  if(pin35 >= 300 && pin43>=60){
     return true;
   }
   else {
@@ -306,7 +316,7 @@ void suiveurLigne()
         SERVO_SetAngle(1,110);
 
         sort = true;
-        delay(500);
+        //delay(500);
         //while(1);
     }
   }
@@ -340,23 +350,6 @@ void detectCouleur()
   int rYellow = 1100;
   int gYellow = 1150;
   int bYellow = 845;
-
-  /*int rRed = 630;
-  int gRed = 605;
-  int bRed = 658;
-
-  int rBlue = 383;
-  int gBlue = 632;
-  int bBlue = 778;
-
-  int rGreen = 399;
-  int gGreen = 665;
-  int bGreen = 676;
-
-  int rYellow = 1027;
-  int gYellow = 1074;
-  int bYellow = 797;*/
-
 
   /*Serial.print("R: "); Serial.print(r, DEC); Serial.print(" ");
   Serial.print("G: "); Serial.print(g, DEC); Serial.print(" ");
@@ -429,13 +422,15 @@ void premierVirage()
   MOTOR_SetSpeed(RIGHT,0);
 }
 
-void tournantSuite(int nbOjetsButs)
+void tournantSuite()
 {
   if (nbObjetsButs == 1)
   {
     //tournerAngleDroit(135);
     tournerAngleGauche(180);
+    delay(100);
     scan90Gauche();
+    
   }
   else if (nbObjetsButs == 2)
   {
@@ -458,8 +453,8 @@ void allerCentreSuite()
 
     if(capt1 == 0 && capt2 == 0 && capt3 == 0)
     {
-      MOTOR_SetSpeed(LEFT,0.3);
-      MOTOR_SetSpeed(RIGHT,0.3);
+      MOTOR_SetSpeed(LEFT,0.2);
+      MOTOR_SetSpeed(RIGHT,0.2);
 
       prendreValeurSuiveur();
     }
@@ -467,13 +462,14 @@ void allerCentreSuite()
     {
       tournerAngleGauche(60);
       suiveurLigne();
+      sortie = true;
     }
     else if(capt1 == 1)
     {
       while(capt1 == 1)
       {
         MOTOR_SetSpeed(LEFT,0);
-        MOTOR_SetSpeed(RIGHT,0.3);
+        MOTOR_SetSpeed(RIGHT,0.2);
 
         prendreValeurSuiveur();
 
@@ -481,7 +477,7 @@ void allerCentreSuite()
       while(capt1 != 1)
       {
         MOTOR_SetSpeed(LEFT,0);
-        MOTOR_SetSpeed(RIGHT,0.3);
+        MOTOR_SetSpeed(RIGHT,0.2);
 
         prendreValeurSuiveur();
       }
@@ -498,6 +494,55 @@ void allerCentreSuite()
       sortie = true;
     }
   }
+  
+  /*bool sortie = false;
+
+  while(sortie == false)
+  {
+    prendreValeurSuiveur();
+
+    if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(LEFT,0.2);
+      MOTOR_SetSpeed(RIGHT,0.2);
+
+      prendreValeurSuiveur();
+    }
+    else if(capt1 == 1 && capt3==1)
+    {
+      tournerAngleGauche(60);
+      suiveurLigne();
+    }
+    else if(capt1 == 1)
+    {
+      while(capt1 == 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.2);
+
+        prendreValeurSuiveur();
+
+      }
+      while(capt1 != 1)
+      {
+        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.2);
+
+        prendreValeurSuiveur();
+      }
+
+      MOTOR_SetSpeed(RIGHT,0);
+
+      suiveurLigne();
+      sortie = true;
+    }
+    else if(capt3 == 1)
+    {
+      //while(1);
+      suiveurLigne();
+      sortie = true;
+    }
+  }*/
 }
 
 void allerCentreDebut()
@@ -532,6 +577,7 @@ void allerCentreDebut()
     else{
       MOTOR_SetSpeed(LEFT, 0);
       MOTOR_SetSpeed(RIGHT, 0);
+      sortie = true;
       break;
       //break;
     }
@@ -562,6 +608,7 @@ void allerCentreDebut()
     else{
       MOTOR_SetSpeed(LEFT, 0);
       MOTOR_SetSpeed(RIGHT, 0);
+      sortie = true;
       break;
       break;
     }
@@ -677,7 +724,8 @@ void PrendreObjet()
   MOTOR_SetSpeed(LEFT,0.15);
   delay(500);
   ferme_bras();
-  hasobject = 1;
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
   touverLigneExtremite();
 }
 
@@ -767,6 +815,7 @@ void scan90Gauche()
   int Md = 0;
   int Mg = 0;
   int seuilAngle = 1905;
+  bool objetPris = false;
 
   ENCODER_Reset(LEFT);
   ENCODER_Reset(RIGHT);
@@ -787,6 +836,7 @@ void scan90Gauche()
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       PrendreObjet();
+      objetPris = true;
       break;
     }
   }
@@ -811,14 +861,24 @@ void scan90Gauche()
   }
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
-  delay(175);
+  //delay(175);
+  if(objetPris == false)
+  {
+    MOTOR_SetSpeed(RIGHT,0.3);
+    MOTOR_SetSpeed(LEFT,0.3);
+    delay(1000);
+    MOTOR_SetSpeed(RIGHT,0);
+    MOTOR_SetSpeed(LEFT,0);
+    scan90Droit();
+  }
 }
 
 void scan90Droit()
 {
-int Md = 0;
+  int Md = 0;
   int Mg = 0;
   int seuilAngle = 1905;
+  bool objetPris = false;
 
   ENCODER_Reset(LEFT);
   ENCODER_Reset(RIGHT);
@@ -838,31 +898,45 @@ int Md = 0;
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       PrendreObjet();
+      objetPris = true;
+      break;
     }
     //si detecte objet arrete de tourner et avance chercher l'objet
   }
-  //Mg = Mg -1;
-  Mg = -1;
-  while(Mg-Md >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses les moteurs sont pas allignés
+  if(objetPris == false)
   {
-    while(Mg>=Md)
+    //Mg = Mg -1;
+    Mg = -1;
+    while(Mg-Md >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses les moteurs sont pas allignés
     {
-      MOTOR_SetSpeed(LEFT, 0.0);
-      MOTOR_SetSpeed(RIGHT, 0.1);
-      Mg = ENCODER_Read(RIGHT)*-1;
-      //Mg = ENCODER_Read(LEFT);
+      while(Mg>=Md)
+      {
+        MOTOR_SetSpeed(LEFT, 0.0);
+        MOTOR_SetSpeed(RIGHT, 0.1);
+        Mg = ENCODER_Read(RIGHT)*-1;
+        //Mg = ENCODER_Read(LEFT);
+      }
+      while(Mg<=Md)
+      {
+        MOTOR_SetSpeed(LEFT, 0.0);
+        MOTOR_SetSpeed(RIGHT, -0.1);
+        Mg = ENCODER_Read(RIGHT)*-1;
+        //Mg = ENCODER_Read(LEFT);
+      }
     }
-    while(Mg<=Md)
+    MOTOR_SetSpeed(RIGHT,0);
+    MOTOR_SetSpeed(LEFT,0);
+    //delay(175);
+    if(objetPris == false)
     {
-      MOTOR_SetSpeed(LEFT, 0.0);
-      MOTOR_SetSpeed(RIGHT, -0.1);
-      Mg = ENCODER_Read(RIGHT)*-1;
-      //Mg = ENCODER_Read(LEFT);
+      MOTOR_SetSpeed(RIGHT,0.3);
+      MOTOR_SetSpeed(LEFT,0.3);
+      delay(1000);
+      MOTOR_SetSpeed(RIGHT,0);
+      MOTOR_SetSpeed(LEFT,0);
+      scan90Gauche();
     }
   }
-  MOTOR_SetSpeed(RIGHT,0);
-  MOTOR_SetSpeed(LEFT,0);
-  delay(175);
 }
 
 void ferme_bras()
@@ -884,11 +958,8 @@ void getdistance()
 void suiveurLigneObjet()
 {
   bool sort = false;
-  int coulTemp ;
   int i =0;
-  
-  //detectCouleur();
-  coulTemp = couleur;
+  bool arreteTourner = false;
 
   while(sort == false)
   {
@@ -900,34 +971,50 @@ void suiveurLigneObjet()
       MOTOR_SetSpeed(RIGHT,0.3*vitesse);
       MOTOR_SetSpeed(LEFT,0.3*vitesse);
       i=0;
+      prendreValeurSuiveur();
+      if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+      {
+        arreteTourner = true;
+      }
     }
     else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
     {
       MOTOR_SetSpeed(RIGHT,0.3*vitesse);
       MOTOR_SetSpeed(LEFT,0);
       i=0;
+      prendreValeurSuiveur();
+      if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+      {
+        arreteTourner = true;
+      }
+
     }
     else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
     {
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0.3*vitesse);
       i=0;
+      prendreValeurSuiveur();
+      if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+      {
+        arreteTourner = true;
+      }
     }
-    else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    else if((capt1 == 0 && capt2 == 0 && capt3 == 0) || arreteTourner == true)
     {
       i++;
-      if(i>=55)
+      if(i>=100 || arreteTourner == true)
       {
         MOTOR_SetSpeed(RIGHT,0);
         MOTOR_SetSpeed(LEFT,0);
         placerObjet();
         sort = true;
+        break;
       }
     }
   }
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
-
 }
 
 void placerObjet()
@@ -949,8 +1036,18 @@ void placerObjet()
   MOTOR_SetSpeed(RIGHT,-0.3);
   MOTOR_SetSpeed(LEFT,-0.3);
   delay(2000);
-  tournerAngleGauche(105);
-  hasobject = 0;
-  nbObjetsButs++;
+  tournerAngleGauche(93);
+  nbObjetsButs = nbObjetsButs + 1;
+  beep(2);
   allerCentreSuite();
+}
+
+void beep(int count){
+  for(int i=0;i<count;i++){
+    AX_BuzzerON();
+    delay(100);
+    AX_BuzzerOFF();
+    delay(100);  
+  }
+  delay(400);
 }
