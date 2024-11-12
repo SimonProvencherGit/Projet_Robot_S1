@@ -3,6 +3,7 @@
 #include "Adafruit_TCS34725.h"
 #include <stdlib.h>
 #include "SharpIR.h"
+#include <LiquidCrystal.h>
 
 
 // put function declarations here:
