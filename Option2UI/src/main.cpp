@@ -28,7 +28,6 @@ const int pinBout3 = 24;
 
 void setup ()
 {
-  
   pinMode(pinBout1, INPUT);
   pinMode(pinBout2, INPUT);
   pinMode(pinBout3, INPUT);
@@ -66,9 +65,11 @@ void Service_Cafe() {
   Serial.print(valeurB2);*/
 
   lcd.setCursor(0, 0);
-  lcd.print("Voulez vous du cafe ?");
-  lcd.setCursor(0, 1);
-  lcd.print(" Oui        Non ");
+  lcd.print("Du cafe ?");
+  lcd.setCursor(13, 0);
+  lcd.print("Oui"); 
+  lcd.setCursor(13, 1);
+  lcd.print("Non");
   
   while(valeurB1 == false && valeurB2 == false)
   {
@@ -83,9 +84,9 @@ void Service_Cafe() {
     
     lcd.clear();
     lcd.setCursor(position-1, 0);    // pour centrer le texte  -1 car la premiere position est 0 et non 1
-    lcd.print(message);
+    lcd.print("Bonne journee !");
     delay(3500);
-    return;     //sort de la fonction
+    return;     //sort de la fonction pour retourner au main pour reculer et retrouver la ligne noire
   }
   else if(valeurB1 == true)
   {
@@ -105,6 +106,15 @@ void Service_Cafe() {
   
   lcd.clear();
   lcd.setCursor(0, 0);
+  lcd.print("Voici le cafe");
+  
+  delay(3000); //attendre 3 seconde pour que le verre soit bien place et pas commencer a verser le cafe trop tot
+  
+  //////////////// fonction pour donner le cafe ici//////////////////////
+
+  
+  lcd.clear();
+  lcd.setCursor(0, 0);
   lcd.print("Du lait ?");
   lcd.setCursor(14, 1);
   lcd.print(comptLait);
@@ -113,7 +123,7 @@ void Service_Cafe() {
   lcd.setCursor(15, 1);
   lcd.print("-");
 
-  while(valeurB3 == false)    //tant que l'utilisateur ne pese pas sur enter
+  while(valeurB3 != true)    //tant que l'utilisateur ne pese pas sur enter
   {
     valeurB1 = digitalRead(pinBout1);
     valeurB2 = digitalRead(pinBout2);
@@ -149,7 +159,7 @@ void Service_Cafe() {
   for(int i = 0; i < comptLait; i++)
   {
     //////////////// fonction pour donner le lait ici////////////////////
-    delay(500);
+    delay(300);
   }
 
 
@@ -198,7 +208,7 @@ void Service_Cafe() {
   for(int i = 0; i < comptSucre; i++)
   {
     //////////////// fonction pour donner le sucre ici////////////////////
-    delay(500);
+    delay(300);
   }
 
   lcd.clear();
@@ -213,8 +223,11 @@ void Service_Cafe() {
     distance_cm = mySensor.distance();
     delay(1);
   }
-  return;
+  delay(1000);    //attendre 1 seconde pour que l'utilisateur aie le temps de pendre son verre avant que le robot quitte
+
+  return;   //retourne au main pour reculer et retrouver la ligne noire
 }
+
   /*
   while(distance_cm > 10) {
 
