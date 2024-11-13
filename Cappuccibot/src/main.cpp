@@ -6,8 +6,8 @@
 #include <Wire.h> 
 #include <LiquidCrystal.h>
 
-//delaration fontions
-void UI();
+//delaration fonctions
+void Service_Cafe();
 
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // LCD Shield
@@ -22,7 +22,8 @@ const int pinBout1 = 22;
 const int pinBout2 = 23;
 const int pinBout3 = 24;
 
-void setup () {
+void setup ()
+{
   
   pinMode(pinBout1, INPUT);
   pinMode(pinBout2, INPUT);
@@ -39,67 +40,339 @@ void setup () {
    analogWrite(backLightpin, 210);
    pinMode(contrast_pin, OUTPUT);
    analogWrite(contrast_pin, 40);
-  }  
+}
 
 void loop () {
-
-
-  UI();
-  
+  Service_Cafe();
 }
 
 
-void UI()
-{
-  int valeurB1;
-  int valeurB2;
-  int valeurB3;
+void Service_Cafe() {
+  int distance_cm;
 
-  valeurB1 =  digitalRead(pinBout1);
-  valeurB2 =  digitalRead(pinBout2);
-  valeurB3 =  digitalRead(pinBout3);
+  int valeurB1, valeurB2;
+
+  valeurB1 = digitalRead(pinBout1);
+  valeurB2 = digitalRead(pinBout2);
 
  
   Serial.print("Bouton 1 : ");
   Serial.print(valeurB1);
   Serial.print(" Bouton 2 : ");
   Serial.print(valeurB2);
-  Serial.print(" Bouton 3 : ");
-  Serial.println(valeurB3);
 
-  while(tasse pas sur plateau)
-  {
-    faire lecture capteur distance 
-    delay(1);
+  while(distance_cm > 10) {
 
-    si <5 on sait que la tasse est presente on sort du while
-  }
-  afficher cd de lait
+    lcd.print("Posez le verre");
+    SharpIR mySensor = SharpIR(IRPin, model);
+    distance_cm = mySensor.distance();
+    delay(3);
 
-  while(enter pas pese)
-  {
-    if(bouton augmente pese)
-    {
-      nblait++;
+    if (distance_cm < 10) {
+
+      lcd.clear();
+      lcd.print("Du cafe ?");
+      lcd.setCursor(13, 1);
+      lcd.print("Oui");
+      lcd.setCursor(13, 2);
+      lcd.print("Non");
+
+      //Si usager ne veut pas de cafe
+      if (valeurB2 == true) {
+
+        lcd.clear();
+        lcd.print("Bonne journee !");
+        delay(2000);
+        //code de retour sur la ligne noire centrale ici
+      }
+
+      //Si usager veut du cafe
+      if (valeurB1 == true) {
+
+        lcd.clear();
+        //code de la pompe pour le cafe ici
+        delay(2000);
+        lcd.print("Du lait ?");
+        lcd.setCursor(13, 1);
+        lcd.print("Oui");
+        lcd.setCursor(13, 2);
+        lcd.print("Non");
+
+        //Si usager veut du lait
+        if (valeurB1 == true) {
+          lcd.clear();
+          lcd.setCursor(1, 1);
+          lcd.print("1 lait ?");
+          lcd.setCursor(1, 2);
+          lcd.print("2 lait ?");
+
+          //Si usager veut 1 lait
+          if (valeurB1 == true) {
+            lcd.clear();
+            //code de la pompe pour le lait (delay pour 1 lait)
+            delay(2000);
+            lcd.print("Du sucre ?");
+
+            //Si usager veut du sucre
+            if (valeurB1 == true) {
+              lcd.clear();
+              lcd.setCursor(1, 1);
+              lcd.print("1 sucre ?");
+              lcd.setCursor(1, 2);
+              lcd.print("2 sucre ?");
+
+              //Si usager veut 1 sucre
+              if (valeurB1 == true) {
+
+                lcd.clear();
+                //code servomoteurs pour le sucre (delay pour 1 sucre)
+                delay(2000);
+
+                //fin de la distribution
+                while(distance_cm < 10) {
+                  lcd.clear();
+                  lcd.print("Prenez le verre");
+                  SharpIR mySensor = SharpIR(IRPin, model);
+                  distance_cm = mySensor.distance();
+                  delay(1);
+
+                  if (distance_cm > 10) {
+
+                    lcd.clear();
+                    lcd.print("Bonne journee !");
+                    delay(2000);
+                    //code de retour sur la ligne noire centrale ici
+                  }
+                }
+              }
+
+              //Si usager veut 2 sucre
+              if (valeurB2 == true) {
+
+                lcd.clear();
+                //code servomoteurs pour le sucre (delay pour 2 sucre)
+                delay(2000);
+
+                //fin de la distribution
+                while(distance_cm < 10) {
+                  lcd.clear();
+                  lcd.print("Prenez le verre");
+                  SharpIR mySensor = SharpIR(IRPin, model);
+                  distance_cm = mySensor.distance();
+                  delay(1);
+
+                  if (distance_cm > 10) {
+
+                    lcd.clear();
+                    lcd.print("Bonne journee !");
+                    delay(2000);
+                    //code de retour sur la ligne noire centrale ici
+                  }
+                }
+              }
+            }
+
+            //Si usager veut pas de sucre
+            if (valeurB2 == true) {
+              while(distance_cm < 10) {
+                lcd.clear();
+                lcd.print("Prenez le verre");
+                SharpIR mySensor = SharpIR(IRPin, model);
+                distance_cm = mySensor.distance();
+                delay(1);
+
+                if (distance_cm > 10) {
+
+                  lcd.clear();
+                  lcd.print("Bonne journee !");
+                  delay(2000);
+                  //code de retour sur la ligne noire centrale ici
+                }
+              }
+            }
+          }
+
+          //Si usager veut 2 lait
+          if (valeurB2 == true) {
+            lcd.clear();
+            //code de la pompe pour le lait (delay pour 2 lait)
+            delay(2000);
+            lcd.print("Du sucre ?");
+
+            //Si usager veut du sucre
+            if (valeurB1 == true) {
+              lcd.clear();
+              lcd.setCursor(1, 1);
+              lcd.print("1 sucre ?");
+              lcd.setCursor(1, 2);
+              lcd.print("2 sucre ?");
+
+              //Si usager veut 1 sucre
+              if (valeurB1 == true) {
+
+                lcd.clear();
+                //code servomoteurs pour le sucre (delay pour 1 sucre)
+                delay(2000);
+
+                //fin de la distribution
+                while(distance_cm < 10) {
+                  lcd.clear();
+                  lcd.print("Prenez le verre");
+                  SharpIR mySensor = SharpIR(IRPin, model);
+                  distance_cm = mySensor.distance();
+                  delay(1);
+
+                  if (distance_cm > 10) {
+
+                    lcd.clear();
+                    lcd.print("Bonne journee !");
+                    delay(2000);
+                    //code de retour sur la ligne noire centrale ici
+                  }
+                }
+              }
+
+              //Si usager veut 2 sucre
+              if (valeurB2 == true) {
+
+                lcd.clear();
+                //code servomoteurs pour le sucre (delay pour 2 sucre)
+                delay(2000);
+
+                //fin de la distribution
+                while(distance_cm < 10) {
+                  lcd.clear();
+                  lcd.print("Prenez le verre");
+                  SharpIR mySensor = SharpIR(IRPin, model);
+                  distance_cm = mySensor.distance();
+                  delay(1);
+
+                  if (distance_cm > 10) {
+
+                    lcd.clear();
+                    lcd.print("Bonne journee !");
+                    delay(2000);
+                    //code de retour sur la ligne noire centrale ici
+                  }
+                }
+              }
+            }
+
+            //Si usager veut pas de sucre
+            if (valeurB2 == true) {
+              while(distance_cm < 10) {
+                lcd.clear();
+                lcd.print("Prenez le verre");
+                SharpIR mySensor = SharpIR(IRPin, model);
+                distance_cm = mySensor.distance();
+                delay(1);
+
+                if (distance_cm > 10) {
+
+                  lcd.clear();
+                  lcd.print("Bonne journee !");
+                  delay(2000);
+                  //code de retour sur la ligne noire centrale ici
+                }
+              }
+            }
+          }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Si usager veut pas de lait
+        if (valeurB2 == true) {
+
+          lcd.clear();
+          lcd.print("Du sucre ?");
+          lcd.setCursor(13, 1);
+          lcd.print("Oui");
+          lcd.setCursor(13, 2);
+          lcd.print("Non");
+
+          //Si usager veut du sucre
+          if (valeurB1 == true) {
+            lcd.clear();
+            lcd.setCursor(1, 1);
+            lcd.print("1 sucre ?");
+            lcd.setCursor(1, 2);
+            lcd.print("2 sucre ?");
+
+            //Si usager veut 1 sucre
+            if (valeurB1 == true) {
+
+              lcd.clear();
+              //code servomoteurs pour le sucre (delay pour 1 sucre)
+              delay(2000);
+
+              //fin de la distribution
+              while(distance_cm < 10) {
+                lcd.clear();
+                lcd.print("Prenez le verre");
+                SharpIR mySensor = SharpIR(IRPin, model);
+                distance_cm = mySensor.distance();
+                delay(1);
+
+                if (distance_cm > 10) {
+
+                  lcd.clear();
+                  lcd.print("Bonne journee !");
+                  delay(2000);
+                  //code de retour sur la ligne noire centrale ici
+                }
+              }
+            }
+
+            //Si usager veut 2 sucre
+            if (valeurB2 == true) {
+
+              lcd.clear();
+              //code servomoteurs pour le sucre (delay pour 2 sucre)
+              delay(2000);
+
+              //fin de la distribution
+              while(distance_cm < 10) {
+                lcd.clear();
+                lcd.print("Prenez le verre");
+                SharpIR mySensor = SharpIR(IRPin, model);
+                distance_cm = mySensor.distance();
+                delay(1);
+
+                if (distance_cm > 10) {
+
+                  lcd.clear();
+                  lcd.print("Bonne journee !");
+                  delay(2000);
+                  //code de retour sur la ligne noire centrale ici
+                }
+              }
+            }
+          }
+
+          //Si usager veut pas de sucre
+          if (valeurB2 == true) {
+            while(distance_cm < 10) {
+              lcd.clear();
+              lcd.print("Prenez le verre");
+              SharpIR mySensor = SharpIR(IRPin, model);
+              distance_cm = mySensor.distance();
+              delay(1);
+
+              if (distance_cm > 10) {
+
+                lcd.clear();
+                lcd.print("Bonne journee !");
+                delay(2000);
+                //code de retour sur la ligne noire centrale ici
+              }
+            }
+          }
+        }
+      }
     }
-    if(bouton diminue pese)
-    {
-      nblait--;
-    }
-    if(enter)
-    {
-      sort boulce
-    }
   }
-  distribuer lait
-
-  meme code pour sucre   
-
-  a la final
-
-  while tasse encore presente  {
-    prendre valeur capteur distance
-    si <5 on sait que la tasse est presente on sort du while
-  }
-  si tasse plus la sort du code UI
 }
+
+
+
