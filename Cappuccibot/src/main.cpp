@@ -9,7 +9,7 @@
 //delaration fonctions
 void Service_Cafe();
 
-//LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
+
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7); // LCD Shield
 
 
@@ -29,17 +29,9 @@ void setup ()
   pinMode(pinBout2, INPUT);
   pinMode(pinBout3, INPUT);
 
-  //initilisation des pins
-   //lcd.begin(16,2);   
+  //initilisation des pins   
    lcd.begin(16,2);
    lcd.clear();
-  // lcd.backlight();
-  //   lcd.setBacklightPin(3);
-   //  lcd.setBacklight(1);
-   pinMode(backLightpin, OUTPUT);
-   analogWrite(backLightpin, 210);
-   pinMode(contrast_pin, OUTPUT);
-   analogWrite(contrast_pin, 40);
 }
 
 void loop () {
