@@ -39,6 +39,7 @@ int vertpin = 23;
 int rougepin = 22;
 int distance_plateau = 0;
 int distance_tasse = 0;
+bool sertCafe = false;
 
 void setup ()
 {
@@ -65,7 +66,7 @@ void setup ()
 
 void loop () {
   bool ligneDetecte = false;
-  bool sertCafe = false;
+  sertCafe = false;
 
   if(debut == true)
   {
@@ -76,19 +77,16 @@ void loop () {
   while(sertCafe != true)
   {
       suiveurLigne();
-      //fonction pour suivre la ligne
-      //sample les suiveurs de ligne  (ds foncion suiveur le ligne)
-      //sample les capteurs de distances et capteurs de proximité (ds fonction suiveur de ligne)
 
-      //si capteur de proximité detecte un objet  (ds fonction suiveur de ligne)
-      //arreter, reculer un peu, tourner 90 avancer un peu s'il n'y a rien devant pour faire face a l'usager
-    
-      tournerAngleGauche(180); 
-      trouverLigne();
+      if(sertCafe!=true)
+      {
+        tournerAngleGauche(180);
+        trouverLigne();
+      }
   }
   
   Service_Cafe();
-  //code seuqence pour reculer et se retourner vers la ligne
+  ////////////////code seuqence pour reculer et se retourner vers la ligne//////////////////////////
   trouverLigneExtremite();
 }
 
@@ -321,8 +319,9 @@ void suiveurLigne()
     if(detecteurDevant == 1)      //si on voit qqlch a gauche 
     {
       MOTOR_SetSpeed(RIGHT,0);    //insert code pour tourner dans le sens qu'il voit qqlch
-      MOTOR_SetSpeed(LEFT,0);
+      MOTOR_SetSpeed(LEFT,0);     //on veut arreter, reculer un peu, tourner 90 avancer un peu s'il n'y a rien devant pour faire face a l'usager
       sort = true;
+      sertCafe = true;
       return;
     }
     else if(detecteurDevant == 2) //si on voit qqlch a droite
@@ -330,6 +329,7 @@ void suiveurLigne()
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       sort = true;
+      sertCafe = true;
       return;
     }
     else if(detecteurDevant == 3) //si on voit qqlch devant
@@ -337,6 +337,7 @@ void suiveurLigne()
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       sort = true;
+      sertCafe = true;
       return;
     } 
     else if(distance_tasse < 10)  //si le cateur de distance sur le cote voit qqlch
@@ -344,6 +345,7 @@ void suiveurLigne()
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       sort = true;
+      sertCafe = true;
       return;
     }
   }
