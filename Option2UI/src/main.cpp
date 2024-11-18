@@ -17,16 +17,14 @@ void prendreValeurSuiveur();
 void trouverLigne();
 void trouverLigneExtremite();
 int detecteurApp1();
-void getdistance(int pinCaptDist);
+int getdistance(int pinCaptDist);
 void Service_Cafe_TESTTESTTEST();
-
+void lait();
+void cafe();
+void sucre();
 
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
 LiquidCrystal lcd(10, 8, 5, 4, 3, 2); // LCD Shield
-
-const byte backLightpin = 5; 
-//const byte backLightpin = 10; 
-const byte contrast_pin = 6;
 
 //delaration pins
 const int pinBout1 = A4;
@@ -38,32 +36,66 @@ int capt1,capt2,capt3;
 bool debut = true;
 int vertpin = 23;
 int rougepin = 22;
-int distance_plateau = 0;
-int distance_tasse = 0;
 bool sertCafe = false;
+int pinDistCote = A0;
+int pinDistPlateau = A1;
 
 void setup ()
 {
+  BoardInit();
   Serial.begin(9600);
+
+  //init temporaire
+  pinMode(24, OUTPUT);
 
   pinMode(pinBout1, INPUT);       //initialisation des boutons
   pinMode(pinBout2, INPUT);
   pinMode(pinBout3, INPUT);
   
-  pinMode(A0,INPUT);              //initialisation des capteurs de détecteurs de ligne
-  pinMode(A1,INPUT);
-  pinMode(A2,INPUT);
+  pinMode(A13,INPUT);              //initialisation des capteurs de détecteurs de ligne
+  pinMode(A12,INPUT);
+  pinMode(A11,INPUT);
 
-  //initilisation des pins
-   //lcd.begin(16,2);   
-   lcd.begin(16,2);
-   lcd.clear();
+  pinMode(pinDistCote, INPUT);     //initialisation des capteurs de distance
+  pinMode(pinDistPlateau, INPUT);
+
+  lcd.begin(16,2);
+  lcd.clear();
+
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  
+  SERVO_Disable(0);
+  SERVO_Disable(1);
+  
+  pinMode(A6, OUTPUT); // COFFEE
+  digitalWrite(A6, HIGH);   //ferme les moteurs pour le moment
+  pinMode(A7, OUTPUT); // MILK
+  digitalWrite(A7, HIGH);
 }
 
 void loop () 
 {
-  Service_Cafe_TESTTESTTEST();
-  while(1);
+  int valeur;
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  
+  //cafe();
+  //surcre();
+  //lait();
+  
+  /*while(1)
+  {
+    Serial.print("Cote: ");
+    Serial.print(getdistance(pinDistCote));
+    delay(100);
+    Serial.print("  Plateau: ");
+    valeur = getdistance(pinDistPlateau);
+    if(valeur<10)
+      digitalWrite(24, HIGH);
+    else
+      digitalWrite(24, LOW);
+  }*/
 
   sertCafe = false;
 
@@ -77,9 +109,9 @@ void loop ()
   {
       suiveurLigne();
 
-      if(sertCafe!=true)
+      if(sertCafe==false)
       {
-        tournerAngleGauche(180);
+        tournerAngleGauche(190);
         trouverLigne();
       }
   }
@@ -92,7 +124,6 @@ void loop ()
   //ou
   trouverLigne();
 }
-
 
 void Service_Cafe() {
   bool valeurB1, valeurB2, valeurB3;     //b1 = +  b2 = -  b3 = enter
@@ -141,9 +172,8 @@ void Service_Cafe() {
     lcd.print("sur le plateau");
   }
   
-  while(distance_plateau>10)
+  while(getdistance(pinDistPlateau)>10)
   {
-    getdistance(IRPin);   //mettre la pin du capteur du plateau
     delay(3);
   }
   
@@ -261,7 +291,7 @@ void Service_Cafe() {
   lcd.setCursor(0, 1);
   lcd.print("Bonne journee !");
   
-  while(distance_plateau < 10)
+  while(getdistance(pinDistPlateau) < 10)
   {
     getdistance(IRPin);   //mettre la pin du capteur du plateau
     delay(3);
@@ -275,29 +305,31 @@ void suiveurLigne()
 {
   bool sort = false;
   int i = 0;
-  int detecteurDevant;
+  //int detecteurDevant;
   while(sort == false)
   {
     prendreValeurSuiveur();
     
-    detecteurDevant = detecteurApp1();
-    getdistance(IRPin);  //mettre le pin du capteur de distance sur le cote du robot
-
+    //detecteurDevant = detecteurApp1();
+    //getdistance(IRPin);  //mettre le pin du capteur de distance sur le cote du robot
 
     if(capt1 == 0 && capt2 == 1 && capt3 == 0)
     {
         MOTOR_SetSpeed(RIGHT,0.3*vitesse);
         MOTOR_SetSpeed(LEFT,0.3*vitesse);
+        i=0;
     }
     else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
     {
-        MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+        MOTOR_SetSpeed(RIGHT,0.2*vitesse);
         MOTOR_SetSpeed(LEFT,0);
+        i=0;
     }
     else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
     {
         MOTOR_SetSpeed(RIGHT,0);
-        MOTOR_SetSpeed(LEFT,0.3*vitesse);
+        MOTOR_SetSpeed(LEFT,0.2*vitesse);
+        i=0;
     }
     else if(capt1 == 1 && capt2 == 1 && capt3 == 1)
     {
@@ -308,11 +340,13 @@ void suiveurLigne()
         return;
         //delay(500);
         //while(1);
+        i=0;
     }
-    else if((capt1 == 0 && capt2 == 0 && capt3 == 0) )
+    else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
     {
       i++;
-      if(i>=100)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
+      delay(1);
+      if(i>=350)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
       {
         MOTOR_SetSpeed(RIGHT,0);
         MOTOR_SetSpeed(LEFT,0);
@@ -321,7 +355,7 @@ void suiveurLigne()
       }
     }
 
-    if(detecteurDevant == 1)      //si on voit qqlch a gauche 
+    /*if(detecteurDevant == 1)      //si on voit qqlch a gauche 
     {
       MOTOR_SetSpeed(RIGHT,0);    //insert code pour tourner dans le sens qu'il voit qqlch
       MOTOR_SetSpeed(LEFT,0);     //on veut arreter, reculer un peu, tourner 90 avancer un peu s'il n'y a rien devant pour faire face a l'usager
@@ -345,14 +379,15 @@ void suiveurLigne()
       sertCafe = true;
       return;
     } 
-    else if(distance_tasse < 10)  //si le cateur de distance sur le cote voit qqlch
+    
+    if(getdistance(pinDistPlateau) < 10)  //si le cateur de distance sur le cote voit qqlch
     {
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
       sort = true;
       sertCafe = true;
       return;
-    }
+    }*/
   }
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
@@ -360,29 +395,31 @@ void suiveurLigne()
 
 void prendreValeurSuiveur()
 {
-  capt1 = analogRead(A0);            //lecture des capteurs de détecteurs de ligne
-  capt2 = analogRead(A1);
-  capt3 = analogRead(A2);
+  capt1 = analogRead(A13);            //lecture des capteurs de détecteurs de ligne
+  capt2 = analogRead(A12);
+  capt3 = analogRead(A11);
 
-  if(capt1<500)
-    capt1 = 0;
-  else if(capt1>=500)
+  if(capt1>500)
     capt1 = 1;
-  if(capt2<=30)
-    capt2 = 0;
-  else if(capt2>33)
-    capt2 = 1;
-  if(capt3<100)
-    capt3 = 0;
-  else if(capt3>=100)
-    capt3 = 1;
+  else if(capt1<500)
+    capt1 = 0;
 
-  Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
+  if(capt2>200)
+    capt2 = 1;  
+  else if(capt2<200)
+    capt2 = 0;
+
+  if(capt3>500)
+    capt3 = 1;
+  else if(capt3<500)
+    capt3 = 0;
+
+  /*Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
   Serial.print("   ");
   Serial.print(capt2,DEC);
   Serial.print("   ");
   Serial.print(capt3,DEC);
-  Serial.println("   ");
+  Serial.println("   ");*/
 }
 
 void tournerAngleGauche(int angle)
@@ -576,17 +613,13 @@ int detecteurApp1(){   //return 0 si rien, 1 si a gauche, 2 si a droite, 3 si de
     return 0;
 }
 
-void getdistance(int pinCaptDist)
+int getdistance(int pinCaptDist)
 {
   int distanceTemp;
   SharpIR mySensor = SharpIR(pinCaptDist, model);
   distanceTemp = mySensor.distance();
-  Serial.println(distanceTemp);
-  
-  if(pinCaptDist == A0)           //remplacer A0... par les pin des capteurs de distance
-    distance_tasse = distanceTemp;
-  else if(pinCaptDist == A1)
-    distance_plateau = distanceTemp;
+  //Serial.println(distanceTemp);
+  return distanceTemp;
 }
 
 void Service_Cafe_TESTTESTTEST() {
@@ -773,4 +806,28 @@ void Service_Cafe_TESTTESTTEST() {
   delay(1000);    //attendre 1 seconde pour que l'utilisateur aie le temps de pendre son verre avant que le robot quitte
 
   return;   //retourne au main pour reculer et retrouver la ligne noire
+}
+
+void lait(){
+  analogWrite(A6, LOW);
+  delay(3000);
+  digitalWrite(A6, HIGH);
+}
+
+void cafe(){
+  digitalWrite(A7, LOW);
+  delay(3000);
+  digitalWrite(A7, HIGH);
+}
+void sucre ()
+{
+  SERVO_Enable(0);
+  SERVO_SetAngle(0, 70);
+  delay(1000);
+  SERVO_Disable(0);
+  SERVO_Enable(0);
+  delay(1);
+  SERVO_SetAngle(0, 110);
+  delay(1000);
+  SERVO_Disable(0);
 }
