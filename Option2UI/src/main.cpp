@@ -139,7 +139,7 @@ void loop ()
     }
   }
 
-  while(1);
+  //while(1);
   
   allerVersUsager();
 
@@ -880,7 +880,7 @@ void allerVersUsager()
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
 
-  tournerAngleGauche(90);
+  tournerAngleGauche(270);
 
   ligneTasse(); 
 }
@@ -913,7 +913,15 @@ void ligneTasse()
 
       prendreValeurSuiveur();
     }
-    else if(capt1 == 1 && capt3==1)
+    else if(capt1 == 1 || capt3==1)
+    { 
+      MOTOR_SetSpeed(LEFT,0);
+      MOTOR_SetSpeed(RIGHT,0);
+      while (1);
+      sortie = true;
+      return;
+    }
+    /*else if(capt1 == 1 && capt3==1)
     {
       sortie = true;
       MOTOR_SetSpeed(LEFT,0);
@@ -947,7 +955,7 @@ void ligneTasse()
       MOTOR_SetSpeed(LEFT,0);
       
       return;
-    }
+    }*/
   }
 }
 
