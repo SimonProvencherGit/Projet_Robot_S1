@@ -25,6 +25,8 @@ void sucre();
 void allerVersUsager();
 void retourVersLigne();
 void ligneTasse();
+void suiveurLigneTest();
+void testboutons();
 
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
 LiquidCrystal lcd(10, 8, 5, 4, 3, 2); // LCD Shield
@@ -32,7 +34,7 @@ LiquidCrystal lcd(10, 8, 5, 4, 3, 2); // LCD Shield
 //delaration pins
 const int pinBout1 = A4;
 const int pinBout2 = A5;
-const int pinBout3 = A7;
+const int pinBout3 = A8;
 
 int vitesse = 1;
 int capt1,capt2,capt3;
@@ -40,8 +42,8 @@ bool debut = true;
 int vertpin = 23;
 int rougepin = 22;
 bool sertCafe = false;
-int pinDistCote = A0;
-int pinDistPlateau = A1;
+int pinDistCote = A1;
+int pinDistPlateau = A0;
 
 void setup ()
 {
@@ -55,9 +57,9 @@ void setup ()
   pinMode(pinBout2, INPUT);
   pinMode(pinBout3, INPUT);
   
-  pinMode(A13,INPUT);              //initialisation des capteurs de détecteurs de ligne
-  pinMode(A12,INPUT);
-  pinMode(A11,INPUT);
+  pinMode(A2,INPUT);              //initialisation des capteurs de détecteurs de ligne
+  pinMode(A3,INPUT);
+  pinMode(A4,INPUT);
 
   pinMode(pinDistCote, INPUT);     //initialisation des capteurs de distance
   pinMode(pinDistPlateau, INPUT);
@@ -79,43 +81,65 @@ void setup ()
 
 void loop () 
 {
-  int valeur;
-  
-  //cafe();
-  //surcre();
-  //lait();
-  
+
+  int valeur,valeur2;
+
+  /*while (1)
+  {
+    prendreValeurSuiveur();
+    delay(300);
+  }*/
+ /*
+  cafe();
+  delay(1500);
+  lait();
+  delay(1500);
+  sucre();
+  delay(1000);
+  suiveurLigne();*/
+
   /*while(1)
   {
     Serial.print("Cote: ");
-    Serial.print(getdistance(pinDistCote));
+    valeur2 = getdistance(pinDistCote);
+    Serial.print(valeur2);
     delay(100);
+    
     Serial.print("  Plateau: ");
     valeur = getdistance(pinDistPlateau);
-    if(valeur<10)
+    Serial.println(valeur);
+    
+    if(valeur<15)
       digitalWrite(24, HIGH);
     else
       digitalWrite(24, LOW);
+    if(valeur2<15)
+      digitalWrite(25, HIGH);
+    else
+      digitalWrite(25, LOW);
   }*/
 
   sertCafe = false;
 
-  if(debut == true)
+  /*if(debut == true)
   {
     trouverLigne();
     debut = false;
-  }
+  }*/
 
   while(sertCafe == false)
   {
-      suiveurLigne();
+    suiveurLigne();
+    //suiveurLigneTest();
 
-      if(sertCafe==false)
-      {
-        tournerAngleGauche(190);
-        trouverLigne();
-      }
+    if(sertCafe==false)
+    {
+      tournerAngleGauche(190);
+      trouverLigne();
+    }
   }
+
+  while(1);
   
   allerVersUsager();
 
@@ -147,13 +171,19 @@ void Service_Cafe() {
 
   valeurB1 = digitalRead(pinBout1);
   valeurB2 = digitalRead(pinBout2);
+  valeurB3 = digitalRead(pinBout3);
   
-  while(valeurB1 == 0 && valeurB2 == 0)    //attent que l'usager pese sur un bouton pour choisir si il veut du cafe
+  while(valeurB1 == 0 && valeurB2 == 0 && valeurB3 == 0)    //attent que l'usager pese sur un bouton pour choisir si il veut du cafe
   {
     valeurB1 = digitalRead(pinBout1);
     valeurB2 = digitalRead(pinBout2);
+    valeurB3 = digitalRead(pinBout3);
     delay(1);
   }
+  //while(digitalRead(pinBout1) == HIGH);
+  //while(digitalRead(pinBout2) == HIGH);
+  //while(digitalRead(pinBout3) == HIGH);
+
   if(valeurB2 == true)    //si l'usager ne veut pas de cafe
   {
     String message = "Bonne journee !";
@@ -174,11 +204,11 @@ void Service_Cafe() {
     lcd.print("sur le plateau");
   }
   
-  while(getdistance(pinDistPlateau) < 10)
+  /*while(getdistance(pinDistPlateau) < 10)
   {
     getdistance(pinDistPlateau);  
     delay(3);
-  }
+  }*/
   
   delay(1000);
 
@@ -186,9 +216,9 @@ void Service_Cafe() {
   lcd.setCursor(0, 0);
   lcd.print("Voici le cafe");
   
-  delay(2000); 
+  //delay(2000); 
   
-  cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
+  //cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -202,7 +232,9 @@ void Service_Cafe() {
 
   valeurB1 = digitalRead(pinBout1);
   valeurB2 = digitalRead(pinBout2);
-  valeurB3 = digitalRead(pinBout3);
+  //valeurB3 = digitalRead(pinBout3);
+  
+  //valeurB3 = 0;
 
   while(valeurB3 != true)    //tant que l'utilisateur ne pese pas sur enter
   {
@@ -244,7 +276,7 @@ void Service_Cafe() {
     
     for(int i = 0; i < comptLait; i++)
     {
-      lait();
+      //lait();
       delay(300);
     }
   }
@@ -303,7 +335,7 @@ void Service_Cafe() {
 
     for(int i = 0; i < comptSucre; i++)
     {
-      sucre();
+      //sucre();
       delay(300);
     }
   }
@@ -314,11 +346,11 @@ void Service_Cafe() {
   lcd.setCursor(0, 1);
   lcd.print("Bonne journee !");
   
-  while(getdistance(pinDistPlateau) < 10)
+  /*while(getdistance(pinDistPlateau) < 10)
   {
     getdistance(pinDistPlateau);  
     delay(3);
-  }
+  }*/
 
   delay(1500);    //attendre 1 seconde pour que l'utilisateur aie le temps de pendre son verre avant que le robot quitte
 
@@ -355,22 +387,11 @@ void suiveurLigne()
         MOTOR_SetSpeed(LEFT,0.2*vitesse);
         i=0;
     }
-    else if(capt1 == 1 && capt2 == 1 && capt3 == 1)
-    {
-        sort = true;
-        delay(500);
-        MOTOR_SetSpeed(RIGHT,0);
-        MOTOR_SetSpeed(LEFT,0);
-        return;
-        //delay(500);
-        //while(1);
-        i=0;
-    }
     else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
     {
       i++;
-      delay(1);
-      if(i>=350)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
+      //delay(500);
+      if(i>=100)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
       {
         MOTOR_SetSpeed(RIGHT,0);
         MOTOR_SetSpeed(LEFT,0);
@@ -401,31 +422,31 @@ void suiveurLigne()
 
 void prendreValeurSuiveur()
 {
-  capt1 = analogRead(A13);            //lecture des capteurs de détecteurs de ligne
-  capt2 = analogRead(A12);
-  capt3 = analogRead(A11);
+  capt1 = analogRead(A4);            //lecture des capteurs de détecteurs de ligne
+  capt2 = analogRead(A3);
+  capt3 = analogRead(A2);
 
-  if(capt1>500)
+  if(capt1>=400)
     capt1 = 1;
-  else if(capt1<500)
+  else if(capt1<400)
     capt1 = 0;
 
-  if(capt2>200)
+  if(capt2>=100)
     capt2 = 1;  
-  else if(capt2<200)
+  else if(capt2<100)
     capt2 = 0;
 
-  if(capt3>500)
+  if(capt3>=100)
     capt3 = 1;
-  else if(capt3<500)
+  else if(capt3<100)
     capt3 = 0;
 
-  /*Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
+  Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
   Serial.print("   ");
   Serial.print(capt2,DEC);
   Serial.print("   ");
   Serial.print(capt3,DEC);
-  Serial.println("   ");*/
+  Serial.println("   ");
 }
 
 void tournerAngleGauche(int angle)
@@ -636,11 +657,27 @@ int getdistance(int pinCaptDist)
   return distanceTemp;
 }
 
+void testboutons()
+{
+   bool valeurB1, valeurB2, valeurB3;
+  while(1)
+  {
+    valeurB1 = digitalRead(pinBout1);
+    valeurB2 = digitalRead(pinBout2);
+    valeurB3 = digitalRead(pinBout3);
+    Serial.print(valeurB1);
+    Serial.print("  ");
+    Serial.print(valeurB2);
+    Serial.print("  ");
+    Serial.println(valeurB3);
+  }
+}
+
 void Service_Cafe_TESTTESTTEST() {
+  
   bool valeurB1, valeurB2, valeurB3;     //b1 = +  b2 = -  b3 = enter
   int comptLait = 0;
   int comptSucre = 0;
-
   /*valeurB1 = digitalRead(pinBout1);
   valeurB2 = digitalRead(pinBout2);
  
@@ -648,7 +685,6 @@ void Service_Cafe_TESTTESTTEST() {
   Serial.print(valeurB1);
   Serial.print(" Bouton 2 : ");
   Serial.print(valeurB2);*/
-
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Du cafe ?");
@@ -656,7 +692,6 @@ void Service_Cafe_TESTTESTTEST() {
   lcd.print("Oui"); 
   lcd.setCursor(13, 1);
   lcd.print("Non");
-
   valeurB1 = digitalRead(pinBout1);
   valeurB2 = digitalRead(pinBout2);
   
@@ -686,21 +721,14 @@ void Service_Cafe_TESTTESTTEST() {
     lcd.print("sur le plateau");
   }
   
-  while(getdistance(pinDistPlateau) < 10)
-  {
-    getdistance(pinDistPlateau);  
-    delay(3);
-  }
   
-  delay(1000);
-
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Voici le cafe");
   
-  delay(2000); 
+  delay(1000); //attendre 3 seconde pour que le verre soit bien place et pas commencer a verser le cafe trop tot
   
-  cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
+  ///////////////////////////////////////////////////// fonction pour donner le cafe ici////////////////////////////////////////////////////////
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -711,18 +739,15 @@ void Service_Cafe_TESTTESTTEST() {
   lcd.print("+"); 
   lcd.setCursor(15, 1);
   lcd.print("-");
-
   valeurB1 = digitalRead(pinBout1);
   valeurB2 = digitalRead(pinBout2);
   valeurB3 = digitalRead(pinBout3);
-
   while(valeurB3 != true)    //tant que l'utilisateur ne pese pas sur enter
   {
     valeurB1 = digitalRead(pinBout1);
     valeurB2 = digitalRead(pinBout2);
     valeurB3 = digitalRead(pinBout3);
     delay(1);
-
     if(valeurB1 == true)
     {
       comptLait++;
@@ -738,7 +763,6 @@ void Service_Cafe_TESTTESTTEST() {
       comptLait--;
       if(comptLait < 0)  //limite de 0 laits
         comptLait = 0;
-
       lcd.setCursor(0, 1);
       lcd.print(comptLait);
       while(digitalRead(pinBout2)==HIGH);   //attendre que l'utilisateur relache le bouton
@@ -747,19 +771,17 @@ void Service_Cafe_TESTTESTTEST() {
   }
   // Attendre que le bouton "enter" soit relâché
   while(digitalRead(pinBout3) == HIGH);
-
   if(comptLait != 0)
   {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Voici le lait");
-    for(int i = 0; i < comptLait; i++)
-    {
-      lait();
-      delay(300);
-    }
   }
-
+  for(int i = 0; i < comptLait; i++)
+  {
+    //////////////////////////////////////////// fonction pour donner le lait ici//////////////////////////////////////////////////////////////
+    delay(300);
+  }
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Du sucre ?");
@@ -769,7 +791,6 @@ void Service_Cafe_TESTTESTTEST() {
   lcd.print("+"); 
   lcd.setCursor(15, 1);
   lcd.print("-");
-
   //delay(100);
   //valeurB1 = digitalRead(pinBout1);
   //valeurB2 = digitalRead(pinBout2);
@@ -781,13 +802,11 @@ void Service_Cafe_TESTTESTTEST() {
     valeurB2 = digitalRead(pinBout2);
     valeurB3 = digitalRead(pinBout3);
     //delay(10);
-
     if(valeurB1 == true)
     {
       comptSucre++;
       if(comptSucre > 3)  //limite de 3 sucres
         comptSucre = 3;
-
       lcd.setCursor(0, 1);
       lcd.print(comptSucre);
       while(digitalRead(pinBout1)==true);   //attendre que l'utilisateur relache le bouton
@@ -797,7 +816,6 @@ void Service_Cafe_TESTTESTTEST() {
       comptSucre--;
       if(comptSucre < 0)  //limite de 0 sucres
         comptSucre = 0;
-
       lcd.setCursor(0, 1);
       lcd.print(comptSucre);
       while(digitalRead(pinBout2)==true);   //attendre que l'utilisateur relache le bouton
@@ -811,29 +829,22 @@ void Service_Cafe_TESTTESTTEST() {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(" Voici le sucre");
-
-    for(int i = 0; i < comptSucre; i++)
-    {
-      sucre();
-      delay(300);
-    }
   }
-
+  for(int i = 0; i < comptSucre; i++)
+  {
+    ///////////////////////////////////////////////////// fonction pour donner le sucre ici///////////////////////////////////////////////////////
+    delay(300);
+  }
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Prenez le verre");
   lcd.setCursor(0, 1);
   lcd.print("Bonne journee !");
   
-  while(getdistance(pinDistPlateau) < 10)
-  {
-    getdistance(pinDistPlateau);  
-    delay(3);
-  }
-
   delay(1000);    //attendre 1 seconde pour que l'utilisateur aie le temps de pendre son verre avant que le robot quitte
-
   return;   //retourne au main pour reculer et retrouver la ligne noire
+
+
 }
 
 void lait(){
@@ -939,3 +950,69 @@ void ligneTasse()
     }
   }
 }
+
+void suiveurLigneTest()
+{
+  bool sort = false;
+  int i = 0;
+  //int detecteurDevant;
+  while(sort == false)
+  {
+    prendreValeurSuiveur();
+    
+    //detecteurDevant = detecteurApp1();
+    //getdistance(IRPin);  //mettre le pin du capteur de distance sur le cote du robot
+
+    if(capt1 == 0 && capt2 == 1 && capt3 == 0)
+    {
+        MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+        MOTOR_SetSpeed(LEFT,0.3*vitesse);
+        i=0;
+    }
+    else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
+    {
+        MOTOR_SetSpeed(RIGHT,0.2*vitesse);
+        MOTOR_SetSpeed(LEFT,0);
+        i=0;
+    }
+    else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
+    {
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0.2*vitesse);
+        i=0;
+    }
+    /*else if(capt1 == 1 && capt2 == 1 && capt3 == 1)
+    {
+        sort = true;
+        delay(500);
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0);
+        return;
+        //delay(500);
+        //while(1);
+        i=0;
+    }*/
+    else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      i++;
+      delay(1);
+      if(i>=350)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
+      {
+        MOTOR_SetSpeed(RIGHT,0);
+        MOTOR_SetSpeed(LEFT,0);
+        sort = true;
+        return;
+      }
+    }
+    else if(capt1 == 1 && capt2 == 1 && capt3 ==1)
+    {
+      MOTOR_SetSpeed(RIGHT,0);
+      MOTOR_SetSpeed(LEFT,0);
+      
+      tournerAngleGauche(30);
+    }
+  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+}
+
