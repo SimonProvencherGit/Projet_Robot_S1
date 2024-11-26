@@ -1148,8 +1148,8 @@ void tournerAngleDroit(int angle)
   Mg = ENCODER_Read(LEFT);
   //Mg = Mg -1;
   //Mg = -1;
-  
-  while(Mg-(Md*-1) > 15)   // car Md est l'inverse de l'encodeur gauche
+  /*
+  while(Mg-(Md*-1) > 50)   // car Md est l'inverse de l'encodeur gauche
   {
     if(Mg>(Md*-1))
     {
@@ -1163,7 +1163,7 @@ void tournerAngleDroit(int angle)
       MOTOR_SetSpeed(RIGHT, 0.1);
       Md = ENCODER_Read(RIGHT);
     }
-  }
+  }*/
   /*while(Md-Mg >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses
   {
     while(Mg>=Md)
