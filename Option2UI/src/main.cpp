@@ -27,14 +27,16 @@ void retourVersLigne();
 void ligneTasse();
 void suiveurLigneTest();
 void testboutons();
+void tournerAngleDroit(int angle);
+void transitionSuiveurLigne();
 
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
-LiquidCrystal lcd(10, 8, 5, 4, 3, 2); // LCD Shield
+LiquidCrystal lcd(44,42,40,38,39,41); // LCD Shield
 
 //delaration pins
-const int pinBout1 = A4;
-const int pinBout2 = A5;
-const int pinBout3 = A8;
+const int pinBout1 = A13;
+const int pinBout2 = A11;
+const int pinBout3 = A12;
 
 int vitesse = 1;
 int capt1,capt2,capt3;
@@ -51,7 +53,7 @@ void setup ()
   Serial.begin(9600);
 
   //init temporaire
-  pinMode(24, OUTPUT);
+  pinMode(53, OUTPUT);
 
   pinMode(pinBout1, INPUT);       //initialisation des boutons
   pinMode(pinBout2, INPUT);
@@ -83,13 +85,16 @@ void loop ()
 {
 
   int valeur,valeur2;
-
+  //retourVersLigne();
+  //Service_Cafe();
+  //while(1);
   /*while (1)
   {
     prendreValeurSuiveur();
-    delay(300);
+    //tournerAngleDroit(90);
+    delay(200);
   }*/
- /*
+  /*
   cafe();
   delay(1500);
   lait();
@@ -100,32 +105,31 @@ void loop ()
 
   /*while(1)
   {
-    Serial.print("Cote: ");
-    valeur2 = getdistance(pinDistCote);
-    Serial.print(valeur2);
-    delay(100);
+    //Serial.print("Cote: ");
+    //valeur2 = getdistance(pinDistCote);
+    //Serial.print(valeur2);
+    //delay(100);
     
     Serial.print("  Plateau: ");
     valeur = getdistance(pinDistPlateau);
     Serial.println(valeur);
     
-    if(valeur<15)
-      digitalWrite(24, HIGH);
+    if(valeur<=10)
+      digitalWrite(53, HIGH);
     else
-      digitalWrite(24, LOW);
-    if(valeur2<15)
-      digitalWrite(25, HIGH);
-    else
-      digitalWrite(25, LOW);
+      digitalWrite(53, LOW);
   }*/
+
+  lcd.clear();
+  lcd.print("Recherche tasse");
 
   sertCafe = false;
 
-  /*if(debut == true)
+  if(debut == true)
   {
     trouverLigne();
     debut = false;
-  }*/
+  }
 
   while(sertCafe == false)
   {
@@ -134,7 +138,7 @@ void loop ()
 
     if(sertCafe==false)
     {
-      tournerAngleGauche(190);
+      tournerAngleDroit(185);
       trouverLigne();
     }
   }
@@ -144,6 +148,7 @@ void loop ()
   allerVersUsager();
 
   Service_Cafe();
+  //delay(2000);
   
   retourVersLigne();
 }
@@ -192,7 +197,7 @@ void Service_Cafe() {
     lcd.clear();
     lcd.setCursor(position-1, 0);    // pour centrer le texte  -1 car la premiere position est 0 et non 1
     lcd.print(message);
-    delay(3500);
+    delay(2500);
     return;     //sort de la fonction pour retourner au main pour reculer et retrouver la ligne noire
   }
   else if(valeurB1 == true || valeurB3 == true)
@@ -204,13 +209,27 @@ void Service_Cafe() {
     lcd.print("sur le plateau");
   }
   
-  /*while(getdistance(pinDistPlateau) < 10)
+  /*while(getdistance(pinDistPlateau) <= 20)
   {
-    getdistance(pinDistPlateau);  
+    //getdistance(pinDistPlateau);  
     delay(3);
   }*/
+ int valeur;
+ bool sortie = false;
+ while(sortie == false)
+  {
+    valeur = getdistance(pinDistPlateau);
+    
+    if(valeur<=10)
+    {
+      digitalWrite(53, HIGH);
+      sortie = true;
+    }
+    else
+      digitalWrite(53, LOW);
+  }
   
-  delay(1000);
+  delay(2000);
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -218,7 +237,7 @@ void Service_Cafe() {
   
   //delay(2000); 
   
-  //cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
+  cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -234,7 +253,7 @@ void Service_Cafe() {
   valeurB2 = digitalRead(pinBout2);
   //valeurB3 = digitalRead(pinBout3);
   
-  //valeurB3 = 0;
+  valeurB3 = false;
 
   while(valeurB3 != true)    //tant que l'utilisateur ne pese pas sur enter
   {
@@ -265,7 +284,6 @@ void Service_Cafe() {
     }
     
   }
-  // Attendre que le bouton "enter" soit relâché
   while(digitalRead(pinBout3) == HIGH);
 
   if(comptLait != 0)
@@ -276,7 +294,7 @@ void Service_Cafe() {
     
     for(int i = 0; i < comptLait; i++)
     {
-      //lait();
+      lait();
       delay(300);
     }
   }
@@ -294,8 +312,8 @@ void Service_Cafe() {
   //delay(100);
   //valeurB1 = digitalRead(pinBout1);
   //valeurB2 = digitalRead(pinBout2);
-  valeurB3 = digitalRead(pinBout3);
-  //valeurB3 = false;
+  //valeurB3 = digitalRead(pinBout3);
+  valeurB3 = false;
   while(valeurB3 != true)    //tant que l'utilisateur ne pese pas sur enter
   { 
     valeurB1 = digitalRead(pinBout1);     
@@ -324,7 +342,6 @@ void Service_Cafe() {
       while(digitalRead(pinBout2)==true);   //attendre que l'utilisateur relache le bouton
     }
   }
-  // Attendre que le bouton "enter" soit relâché
   while(digitalRead(pinBout3) == HIGH);
   
   if(comptSucre != 0)
@@ -335,7 +352,7 @@ void Service_Cafe() {
 
     for(int i = 0; i < comptSucre; i++)
     {
-      //sucre();
+      sucre();
       delay(300);
     }
   }
@@ -346,14 +363,30 @@ void Service_Cafe() {
   lcd.setCursor(0, 1);
   lcd.print("Bonne journee !");
   
-  /*while(getdistance(pinDistPlateau) < 10)
+  /*while(getdistance(pinDistPlateau) <= 20)
   {
-    getdistance(pinDistPlateau);  
+    //getdistance(pinDistPlateau);  
     delay(3);
   }*/
+  sortie = false;
+  int valTemp;
+  valTemp = getdistance(pinDistPlateau);
 
-  delay(1500);    //attendre 1 seconde pour que l'utilisateur aie le temps de pendre son verre avant que le robot quitte
+  while(sortie == false)
+  {
+    valeur = getdistance(pinDistPlateau);
+    
+    if(valeur>=13 && valeur != valTemp)
+    {
+      digitalWrite(53, HIGH);
+      sortie = true;
+    }
+  }
 
+  delay(2000);    //attendre 1.5 seconde pour que l'utilisateur aie le temps de prendre son verre avant que le robot quitte
+  
+  lcd.clear();
+  lcd.print("Recherche tasse");
   return;   //retourne au main pour reculer et retrouver la ligne noire
 }
 
@@ -377,21 +410,20 @@ void suiveurLigne()
     }
     else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
     {
-        MOTOR_SetSpeed(RIGHT,0.2*vitesse);
-        MOTOR_SetSpeed(LEFT,0);
+        MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+        MOTOR_SetSpeed(LEFT,0.1);
         i=0;
     }
     else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
     {
-        MOTOR_SetSpeed(RIGHT,0);
-        MOTOR_SetSpeed(LEFT,0.2*vitesse);
-        i=0;
+      MOTOR_SetSpeed(RIGHT,0.1);
+      MOTOR_SetSpeed(LEFT,0.3*vitesse);
+      i=0;
     }
     else if(capt1 == 0 && capt2 == 0 && capt3 == 0)
     {
       i++;
-      //delay(500);
-      if(i>=100)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
+      if(i>=50)    //si on voit pas de ligne pour un petit bout on sort de suiveur ligne
       {
         MOTOR_SetSpeed(RIGHT,0);
         MOTOR_SetSpeed(LEFT,0);
@@ -399,15 +431,8 @@ void suiveurLigne()
         return;
       }
     }
-    else if(capt1 == 1 && capt2 == 1 && capt3 ==1)
-    {
-      MOTOR_SetSpeed(RIGHT,0);
-      MOTOR_SetSpeed(LEFT,0);
-      
-      tournerAngleGauche(30);
-    }
 
-    if(getdistance(pinDistCote) < 15)  //si le cateur de distance sur le cote voit qqlch
+    if(getdistance(pinDistCote) < 20)  //si le cateur de distance sur le cote voit qqlch
     {
       MOTOR_SetSpeed(RIGHT,0);
       MOTOR_SetSpeed(LEFT,0);
@@ -426,19 +451,19 @@ void prendreValeurSuiveur()
   capt2 = analogRead(A3);
   capt3 = analogRead(A2);
 
-  if(capt1>=400)
+  if(capt1>=200)
     capt1 = 1;
-  else if(capt1<400)
+  else if(capt1<200)
     capt1 = 0;
 
-  if(capt2>=100)
+  if(capt2>=150)
     capt2 = 1;  
-  else if(capt2<100)
+  else if(capt2<150)
     capt2 = 0;
 
-  if(capt3>=100)
+  if(capt3>=40)
     capt3 = 1;
-  else if(capt3<100)
+  else if(capt3<40)
     capt3 = 0;
 
   Serial.print(capt1,DEC);        //affiche les valeurs des capteurs de détecteurs de ligne
@@ -492,7 +517,7 @@ void tournerAngleGauche(int angle)
   }
   //Mg = Mg -1;
   Mg = -1;
-  while(Mg-Md >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses les moteurs sont pas allignés
+  while(Mg-Md >10)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses les moteurs sont pas allignés
   {
     while(Mg>=Md)
     {
@@ -517,7 +542,6 @@ void tournerAngleGauche(int angle)
 void trouverLigne()
 {
   bool sortie = false;
-  int lignedetecte = 0;
 
   while(sortie == false)
   {
@@ -554,7 +578,7 @@ void trouverLigne()
         return;
       }
     }
-    
+
     MOTOR_SetSpeed(LEFT,0.2);
     MOTOR_SetSpeed(RIGHT,0.2);
     delay(300);
@@ -579,6 +603,14 @@ void trouverLigneExtremite()
 
       prendreValeurSuiveur();
     }
+    else if(capt1 == 1 && capt3 == 1)
+    {
+      MOTOR_SetSpeed(LEFT,0);
+      MOTOR_SetSpeed(RIGHT,0);
+      tournerAngleGauche(30);
+      sortie = true;
+      return;
+    }
     else if(capt1 == 1 || capt3 == 1)
     {
       MOTOR_SetSpeed(LEFT,0);
@@ -586,6 +618,7 @@ void trouverLigneExtremite()
       sortie = true;
       return;
     }
+    
 
     /*else if(capt1 == 1 && capt3==1)
     {
@@ -849,7 +882,7 @@ void Service_Cafe_TESTTESTTEST() {
 
 void lait(){
   analogWrite(A6, LOW);
-  delay(3000);
+  delay(1700);
   digitalWrite(A6, HIGH);
 }
 
@@ -862,13 +895,13 @@ void cafe(){
 void sucre ()
 {
   SERVO_Enable(0);
-  SERVO_SetAngle(0, 70);
+  SERVO_SetAngle(0, 85);
   delay(1000);
   SERVO_Disable(0);   //a tester si on a besoin des enable et disable 
   SERVO_Enable(0);
   delay(1);
   SERVO_SetAngle(0, 110);
-  delay(1000);
+  delay(100);
   SERVO_Disable(0);
 }
 
@@ -876,26 +909,80 @@ void allerVersUsager()
 {
   MOTOR_SetSpeed(RIGHT,0.3);
   MOTOR_SetSpeed(LEFT,0.3);
-  delay(1000);
+  delay(500);
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
 
-  tournerAngleGauche(270);
+  tournerAngleDroit(90);
 
   ligneTasse(); 
+  return;
 }
 
 void retourVersLigne()
 {
-  MOTOR_SetSpeed(RIGHT,-0.3);
+  bool sortie = false;
+  MOTOR_SetSpeed(RIGHT, -0.3);
   MOTOR_SetSpeed(LEFT,-0.3);
-  delay(800);
+  delay(300);
   MOTOR_SetSpeed(RIGHT,0);
   MOTOR_SetSpeed(LEFT,0);
 
-  tournerAngleGauche(180);
+  while(sortie == false)
+  {
+    prendreValeurSuiveur();
 
-  trouverLigneExtremite();
+    if(capt1 == 0 && capt2 == 0 && capt3 == 0)
+    {
+      MOTOR_SetSpeed(LEFT,-0.3);
+      MOTOR_SetSpeed(RIGHT,-0.3);
+
+      prendreValeurSuiveur();
+    }
+    else if(capt1 == 1 && capt3 == 1)
+    {
+      MOTOR_SetSpeed(LEFT,0);
+      MOTOR_SetSpeed(RIGHT,0);
+      tournerAngleGauche(65);
+      MOTOR_SetSpeed(LEFT,0.2);
+      MOTOR_SetSpeed(RIGHT,0.2);
+      delay(75);
+      sortie = true;
+      //return;
+    }
+  }
+  sortie = false;
+
+  /*while(sortie == false)
+  {
+    prendreValeurSuiveur();
+    
+    if(capt1 == 1 && capt3 ==1)
+    {
+      MOTOR_SetSpeed(RIGHT,-0.3);
+      MOTOR_SetSpeed(LEFT,-0.3);
+    }
+    if(capt1 == 0 && capt3 == 0)
+    {
+      //delay(5);
+      MOTOR_SetSpeed(RIGHT,0);
+      MOTOR_SetSpeed(LEFT,0);
+      //tournerAngleDroit(90);
+      sortie = true;
+    }
+  }*/
+  
+  //MOTOR_SetSpeed(RIGHT,0);
+  //MOTOR_SetSpeed(LEFT, 0);
+  //while(1);
+  //trouverLigne();
+  //MOTOR_SetSpeed(RIGHT,0);
+  //MOTOR_SetSpeed(LEFT, 0.3);
+  //delay(400);
+  //MOTOR_SetSpeed(RIGHT,0);
+  //MOTOR_SetSpeed(LEFT, 0);
+  transitionSuiveurLigne();
+  return;
 }
 
 void ligneTasse()
@@ -917,7 +1004,7 @@ void ligneTasse()
     { 
       MOTOR_SetSpeed(LEFT,0);
       MOTOR_SetSpeed(RIGHT,0);
-      while (1);
+      //while (1);
       sortie = true;
       return;
     }
@@ -1018,6 +1105,120 @@ void suiveurLigneTest()
       MOTOR_SetSpeed(LEFT,0);
       
       tournerAngleGauche(30);
+    }
+  }
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+}
+
+void tournerAngleDroit(int angle) 
+{
+  double seuilAngle1;
+
+  //calculs pour trouver la valeur des encodeurs pour l'angle voulu
+  // 1905/90 = x/angle
+  // x = 1905/90 * angle  = nb de pulses pour l'angle voulu
+
+  seuilAngle1 = angle * (1905/90); 
+
+  int Md = 0;
+  int Mg = 0;
+  ENCODER_Reset(LEFT);
+  ENCODER_Reset(RIGHT);
+  while(Mg<(seuilAngle1*0.03))
+  {
+    MOTOR_SetSpeed(LEFT, 0.1);
+    MOTOR_SetSpeed(RIGHT, -0.1);
+    Mg = ENCODER_Read(LEFT);
+  }
+    while(Mg<(seuilAngle1 * 0.06))
+  {
+    MOTOR_SetSpeed(LEFT, 0.2);
+    MOTOR_SetSpeed(RIGHT, -0.2);
+    Mg = ENCODER_Read(LEFT);
+  }
+  while(Mg<(seuilAngle1*0.94))
+  {
+    MOTOR_SetSpeed(LEFT, 0.3);
+    MOTOR_SetSpeed(RIGHT, -0.3);
+    Mg = ENCODER_Read(LEFT);
+  }
+  while(Mg<seuilAngle1)
+  {
+    MOTOR_SetSpeed(LEFT, 0.1);
+    MOTOR_SetSpeed(RIGHT, -0.1);
+    Mg = ENCODER_Read(LEFT);
+    //Mg = ENCODER_Read(RIGHT);
+  }
+  MOTOR_SetSpeed(LEFT, 0);
+  MOTOR_SetSpeed(RIGHT, 0);
+  Md = ENCODER_Read(RIGHT);
+  Mg = ENCODER_Read(LEFT);
+  //Mg = Mg -1;
+  //Mg = -1;
+  
+  while(Mg-(Md*-1) > 15)   // car Md est l'inverse de l'encodeur gauche
+  {
+    if(Mg>(Md*-1))
+    {
+      MOTOR_SetSpeed(LEFT, 0);
+      MOTOR_SetSpeed(RIGHT, -0.1);
+      Md = ENCODER_Read(RIGHT);
+    }
+    else if(Mg<(Md*-1))
+    {
+      MOTOR_SetSpeed(LEFT, 0);
+      MOTOR_SetSpeed(RIGHT, 0.1);
+      Md = ENCODER_Read(RIGHT);
+    }
+  }
+  /*while(Md-Mg >5)   //Tant que la difference entre les deux encodeurs est plus grande que 5 pulses
+  {
+    while(Mg>=Md)
+    {
+      MOTOR_SetSpeed(LEFT, 0.0);
+      MOTOR_SetSpeed(RIGHT, 0.1);
+      Mg = ENCODER_Read(RIGHT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+    while(Mg<=Md)
+    {
+      MOTOR_SetSpeed(LEFT, 0.0);
+      MOTOR_SetSpeed(RIGHT, -0.1);
+      Mg = ENCODER_Read(RIGHT)*-1;
+      //Mg = ENCODER_Read(LEFT);
+    }
+  }*/
+  MOTOR_SetSpeed(RIGHT,0);
+  MOTOR_SetSpeed(LEFT,0);
+  //delay(175);
+}
+  
+void transitionSuiveurLigne()
+{
+  bool sort = false;
+  int i = 0;
+  //int detecteurDevant;
+  while(sort == false)
+  {
+    prendreValeurSuiveur();
+
+    if(capt1 == 0 && capt2 == 1 && capt3 == 0)
+    {
+      sort = true;
+      return;
+    }
+    else if ((capt1 == 1 && capt2 == 1 && capt3 == 0) || (capt1 == 1 && capt2 == 0 && capt3 == 0))
+    {
+      MOTOR_SetSpeed(RIGHT,0.3*vitesse);
+      MOTOR_SetSpeed(LEFT,0);
+      i=0;
+    }
+    else if ((capt1 == 0 && capt2 == 1 && capt3 == 1) || (capt1 == 0 && capt2 == 0 && capt3 == 1))
+    {
+      MOTOR_SetSpeed(RIGHT,0);
+      MOTOR_SetSpeed(LEFT,0.3*vitesse);
+      i=0;
     }
   }
   MOTOR_SetSpeed(RIGHT,0);
