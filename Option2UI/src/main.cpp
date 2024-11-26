@@ -84,7 +84,7 @@ void setup ()
 void loop () 
 {
 
-  int valeur,valeur2;
+  //int valeur,valeur2;
   //retourVersLigne();
   //Service_Cafe();
   //while(1);
@@ -376,9 +376,9 @@ void Service_Cafe() {
   {
     valeur = getdistance(pinDistPlateau);
     
-    if(valeur>=13 && valeur != valTemp)
+    if(valeur>=25 && valeur != valTemp)
     {
-      digitalWrite(53, HIGH);
+      //digitalWrite(53, HIGH);
       sortie = true;
     }
   }
@@ -881,22 +881,22 @@ void Service_Cafe_TESTTESTTEST() {
 }
 
 void lait(){
-  analogWrite(A6, LOW);
-  delay(1700);
-  digitalWrite(A6, HIGH);
+  analogWrite(A7, LOW);
+  delay(2000);
+  digitalWrite(A7, HIGH);
 }
 
 void cafe(){
-  digitalWrite(A7, LOW);
-  delay(3000);
-  digitalWrite(A7, HIGH);
+  digitalWrite(A6, LOW);
+  delay(3500);
+  digitalWrite(A6, HIGH);
 }
 
 void sucre ()
 {
   SERVO_Enable(0);
   SERVO_SetAngle(0, 85);
-  delay(1000);
+  delay(1500);
   SERVO_Disable(0);   //a tester si on a besoin des enable et disable 
   SERVO_Enable(0);
   delay(1);
@@ -972,15 +972,7 @@ void retourVersLigne()
     }
   }*/
   
-  //MOTOR_SetSpeed(RIGHT,0);
-  //MOTOR_SetSpeed(LEFT, 0);
-  //while(1);
-  //trouverLigne();
-  //MOTOR_SetSpeed(RIGHT,0);
-  //MOTOR_SetSpeed(LEFT, 0.3);
-  //delay(400);
-  //MOTOR_SetSpeed(RIGHT,0);
-  //MOTOR_SetSpeed(LEFT, 0);
+
   transitionSuiveurLigne();
   return;
 }
