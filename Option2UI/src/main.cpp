@@ -34,6 +34,7 @@ void serviceCafeBackup();
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
 //LiquidCrystal lcd(10,8,5,4,3,2);
 LiquidCrystal lcd(44,42,40,38,39,41); // LCD Shield
+
 //LiquidCrystal lcd(47,46,45,43,49,35);
 
 //delaration pins
@@ -90,6 +91,7 @@ void loop ()
   //int valeur,valeur2;
   //retourVersLigne();
   //Service_Cafe();
+  //serviceCafeBackup();
   //while(1);
   /*while (1)
   {
@@ -155,9 +157,9 @@ void loop ()
   
   allerVersUsager();
 
-  //Service_Cafe();
+  Service_Cafe();
   //
-  serviceCafeBackup();
+  //serviceCafeBackup();
   //delay(2000);
   
   retourVersLigne();
@@ -956,7 +958,7 @@ void retourVersLigne()
     {
       MOTOR_SetSpeed(LEFT,0);
       MOTOR_SetSpeed(RIGHT,0);
-      tournerAngleGauche(65);
+      tournerAngleGauche(55);
       MOTOR_SetSpeed(LEFT,0.2);
       MOTOR_SetSpeed(RIGHT,0.2);
       delay(75);
