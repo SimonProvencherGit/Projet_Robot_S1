@@ -29,9 +29,12 @@ void suiveurLigneTest();
 void testboutons();
 void tournerAngleDroit(int angle);
 void transitionSuiveurLigne();
+void serviceCafeBackup();
 
 //LiquidCrystal lcd(4, 7, 8, 9, 10, 11, 12);
+//LiquidCrystal lcd(10,8,5,4,3,2);
 LiquidCrystal lcd(44,42,40,38,39,41); // LCD Shield
+//LiquidCrystal lcd(47,46,45,43,49,35);
 
 //delaration pins
 const int pinBout1 = A13;
@@ -94,6 +97,10 @@ void loop ()
     //tournerAngleDroit(90);
     delay(200);
   }*/
+ //lcd.clear();
+ //lcd.print("test test test");
+ //while(1);
+
   /*
   cafe();
   delay(1500);
@@ -138,6 +145,7 @@ void loop ()
 
     if(sertCafe==false)
     {
+      //tournerAngleDroit(210);
       tournerAngleDroit(185);
       trouverLigne();
     }
@@ -147,7 +155,9 @@ void loop ()
   
   allerVersUsager();
 
-  Service_Cafe();
+  //Service_Cafe();
+  //
+  serviceCafeBackup();
   //delay(2000);
   
   retourVersLigne();
@@ -166,9 +176,10 @@ void Service_Cafe() {
   Serial.print(" Bouton 2 : ");
   Serial.print(valeurB2);*/
 
+  lcd.begin(16,2);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Du cafe ?");
+  lcd.print("Du cafe ?    ");
   lcd.setCursor(13, 0);
   lcd.print("Oui"); 
   lcd.setCursor(13, 1);
@@ -239,6 +250,7 @@ void Service_Cafe() {
   
   cafe();     // jsp s'il faudrait refaire une vérification pour le verre ici
   
+  lcd.begin(16,2);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Du lait ?");
@@ -290,15 +302,16 @@ void Service_Cafe() {
   {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Voici le lait");
+    lcd.print(" Voici le lait  ");
     
     for(int i = 0; i < comptLait; i++)
     {
       lait();
-      delay(300);
+      delay(600);
     }
   }
 
+  lcd.begin(16,2);  
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Du sucre ?");
@@ -1217,3 +1230,70 @@ void transitionSuiveurLigne()
   MOTOR_SetSpeed(LEFT,0);
 }
 
+void serviceCafeBackup()
+{
+  bool valeurB1, valeurB2, valeurB3;     //b1 = +  b2 = -  b3 = enter
+  int comptLait = 0;
+  int comptSucre = 0;
+
+
+ int valeur;
+ bool sortie = false;
+
+ lcd.clear();
+ lcd.print("service cafe");
+ 
+ while(sortie == false)
+  {
+    valeur = getdistance(pinDistPlateau);
+    
+    if(valeur<=10)
+    {
+      digitalWrite(53, HIGH);
+      sortie = true;
+    }
+    else
+      digitalWrite(53, LOW);
+  }
+  
+  delay(2000);
+  
+  //cafe();     
+    
+  for(int i = 0; i < 2; i++)
+  {
+    //lait();
+    delay(600);
+  }
+  
+  for(int i = 0; i < 2; i++)
+  {
+    sucre();
+    delay(300);
+  }
+  
+
+
+  sortie = false;
+  int valTemp;
+  valTemp = getdistance(pinDistPlateau);
+
+  while(sortie == false)
+  {
+    valeur = getdistance(pinDistPlateau);
+    
+    if(valeur>=25 && valeur != valTemp)
+    {
+      //digitalWrite(53, HIGH);
+      sortie = true;
+    }
+  }
+
+  delay(2000);    //attendre 1.5 seconde pour que l'utilisateur aie le temps de prendre son verre avant que le robot quitte
+  
+  lcd.clear();
+  lcd.print("Recherche tasse");
+  
+  
+  return;   //retourne au main pour reculer et retrouver la ligne noire
+}
